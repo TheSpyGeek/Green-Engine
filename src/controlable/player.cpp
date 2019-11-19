@@ -47,6 +47,27 @@ void Player::update(){
  
 }
 
+float sign (glm::vec2 p1, glm::vec2 p2, glm::vec2 p3) {
+    return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
+}
+
+bool PointInTriangle (glm::vec2 pt, glm::vec2 v1, glm::vec2 v2, glm::vec2 v3){
+    float d1, d2, d3;
+    bool has_neg, has_pos;
+
+    d1 = sign(pt, v1, v2);
+    d2 = sign(pt, v2, v3);
+    d3 = sign(pt, v3, v1);
+
+    has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+    has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+
+    return !(has_neg && has_pos);
+}
+
+float distance(glm::vec2 v1, glm::vec2 v2){
+    return sqrt((v1.x-v2.x)*(v1.x-v2.x) + (v1.y-v2.y)*(v1.y-v2.y));
+}
 
 void Player::stayCloseToTerrain(Mesh *mesh){
 
@@ -66,29 +87,37 @@ void Player::stayCloseToTerrain(Mesh *mesh){
         v2 = face[1];
         v3 = face[2];
 
-        if(isInsideTriangle(mesh->get_vertex(v1).x, mesh->get_vertex(v1).z, mesh->get_vertex(v2).x, mesh->get_vertex(v2).z, mesh->get_vertex(v3).x, mesh->get_vertex(v3).z, p.x, p.z)){
+        if(PointInTriangle(glm::vec2(p.x, p.z), glm::vec2(mesh->get_vertex(v1).x, mesh->get_vertex(v1).z), glm::vec2(mesh->get_vertex(v2).x, mesh->get_vertex(v2).z), glm::vec2(mesh->get_vertex(v3).x, mesh->get_vertex(v3).z))){
             found = true;
         }
         
     }
-
+    ImGui::Text("pos(%f, %f, %f)", p.x, p.y, p.z);
     
-    ImGui::Text("v1 : %u", v1);
-    ImGui::Text("v2 : %u", v2);
-    ImGui::Text("v3 : %u", v3);
+    ImGui::Text("v1 : %u : pos(%f, %f, %f)", v1, mesh->get_vertex(v1).x, mesh->get_vertex(v1).y, mesh->get_vertex(v1).z);
+    ImGui::Text("v2 : %u : pos(%f, %f, %f)", v2, mesh->get_vertex(v2).x, mesh->get_vertex(v2).y, mesh->get_vertex(v2).z);
+    ImGui::Text("v3 : %u : pos(%f, %f, %f)", v3, mesh->get_vertex(v3).x, mesh->get_vertex(v3).y, mesh->get_vertex(v3).z);
 
     
     // interpolation de y
 
-    float w1 = 1.0f / (glm::vec2(mesh->get_vertex(v1).x, mesh->get_vertex(v1).z) - glm::vec2(p.x, p.z)).length();
-    float w2 = 1.0f / (glm::vec2(mesh->get_vertex(v2).x, mesh->get_vertex(v2).z) - glm::vec2(p.x, p.z)).length();
-    float w3 = 1.0f / (glm::vec2(mesh->get_vertex(v3).x, mesh->get_vertex(v3).z) - glm::vec2(p.x, p.z)).length();
+    float w1 = 1.0f/distance(glm::vec2(mesh->get_vertex(v1).x, mesh->get_vertex(v1).z), glm::vec2(p.x, p.z));
+    float w2 = 1.0f/distance(glm::vec2(mesh->get_vertex(v2).x, mesh->get_vertex(v2).z), glm::vec2(p.x, p.z));
+    float w3 = 1.0f/distance(glm::vec2(mesh->get_vertex(v3).x, mesh->get_vertex(v3).z), glm::vec2(p.x, p.z));
 
-    float yP = (mesh->get_vertex(v1).y*w1 + mesh->get_vertex(v2).y*w2 + mesh->get_vertex(v2).y*w2)/(w1+w2+w3);
+    ImGui::Text("w1 : %f",w1);
+    ImGui::Text("w2 : %f",w2);
+    ImGui::Text("w3 : %f",w3);
+
+    glm::vec2 point = (glm::vec2(p.x, p.z) - glm::vec2(mesh->get_vertex(v1).x, mesh->get_vertex(v1).z));
+
+    ImGui::Text("Distance : %f, 0, %f : %f", point.x, point.y, distance(glm::vec2(mesh->get_vertex(v1).x, mesh->get_vertex(v1).z), glm::vec2(p.x, p.z)));
+
+    float yP = (mesh->get_vertex(v1).y*w1 + mesh->get_vertex(v2).y*w2 + mesh->get_vertex(v3).y*w3)/(w1+w2+w3);
     
     yP += heightFromTerrain;
 
-    transform->setPosition(glm::vec3(transform->getPosition().x, yP, transform->getPosition().x));
+    transform->setPosition(glm::vec3(transform->getPosition().x, yP, transform->getPosition().z));
 
     ImGui::Text("yP : %f", yP);
 
@@ -119,6 +148,7 @@ bool Player::isInsideTriangle(int x1, int y1, int x2, int y2, int x3, int y3, in
    /* Check if sum of A1, A2 and A3 is same as A */ 
    return (A == A1 + A2 + A3); 
 } 
+
 
 
 
