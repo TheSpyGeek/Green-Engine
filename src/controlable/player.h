@@ -28,6 +28,8 @@ private:
 
     float speed = 0.01f;
 
+    float heightFromTerrain = 0.1f;
+
     Mesh *terrain;
 
 };

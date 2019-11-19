@@ -40,11 +40,11 @@ void Player::update(){
         pos.x += speed;
     }
 
+    transform->setPosition(pos);  
     
     stayCloseToTerrain(terrain);
 
-
-    transform->setPosition(pos);   
+ 
 }
 
 
@@ -52,6 +52,10 @@ void Player::stayCloseToTerrain(Mesh *mesh){
 
     unsigned int v1, v2, v3;
     bool found = false;
+
+    
+    ImGui::Begin("Debug");
+    ImGui::Separator();
 
     glm::vec3 p = transform->getPosition();
 
@@ -63,16 +67,32 @@ void Player::stayCloseToTerrain(Mesh *mesh){
         v3 = face[2];
 
         if(isInsideTriangle(mesh->get_vertex(v1).x, mesh->get_vertex(v1).z, mesh->get_vertex(v2).x, mesh->get_vertex(v2).z, mesh->get_vertex(v3).x, mesh->get_vertex(v3).z, p.x, p.z)){
-            std::cout << "Found\n";
             found = true;
         }
         
     }
 
+    
+    ImGui::Text("v1 : %u", v1);
+    ImGui::Text("v2 : %u", v2);
+    ImGui::Text("v3 : %u", v3);
 
+    
     // interpolation de y
 
+    float w1 = 1.0f / (glm::vec2(mesh->get_vertex(v1).x, mesh->get_vertex(v1).z) - glm::vec2(p.x, p.z)).length();
+    float w2 = 1.0f / (glm::vec2(mesh->get_vertex(v2).x, mesh->get_vertex(v2).z) - glm::vec2(p.x, p.z)).length();
+    float w3 = 1.0f / (glm::vec2(mesh->get_vertex(v3).x, mesh->get_vertex(v3).z) - glm::vec2(p.x, p.z)).length();
 
+    float yP = (mesh->get_vertex(v1).y*w1 + mesh->get_vertex(v2).y*w2 + mesh->get_vertex(v2).y*w2)/(w1+w2+w3);
+    
+    yP += heightFromTerrain;
+
+    transform->setPosition(glm::vec3(transform->getPosition().x, yP, transform->getPosition().x));
+
+    ImGui::Text("yP : %f", yP);
+
+    ImGui::End();
 }
 
 // code from https://www.geeksforgeeks.org/check-whether-a-given-point-lies-inside-a-triangle-or-not/
@@ -113,6 +133,9 @@ void Player::createUI(char *ID){
     ImGui::Separator();
     ImGui::Text("Player Speed: ");
     ImGui::DragFloat("##speed", &speed, 0.01f);  
+
+    ImGui::Text("Height from terrain : ");
+    ImGui::DragFloat("##heightFromTerrain", &heightFromTerrain, 0.01f);
 
     ImGui::Separator();
     bool node_material = ImGui::TreeNodeEx("Material", 0);
