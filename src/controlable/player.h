@@ -14,11 +14,21 @@ public:
 
     void createUI(char *ID);
 
+    inline void setTerrainMesh(Mesh *m){
+        terrain = m;
+    }
+
 private:
+
+    void stayCloseToTerrain(Mesh *mesh);
+    float triangle_area(int x1, int y1, int x2, int y2, int x3, int y3);
+    bool isInsideTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int x, int y);
 
     float distanceFromTerrain = 0.1f;
 
     float speed = 0.01f;
+
+    Mesh *terrain;
 
 };
 

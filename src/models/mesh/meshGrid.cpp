@@ -34,7 +34,9 @@ MeshGrid::~MeshGrid(){
 void MeshGrid::recreate(){
 	cleanup();
 	createMesh(nbPointPerRowColumn, width, gridY);
-	applyNoiseModification();
+	if(activeModifier){
+		applyNoiseModification();
+	}
 	hasChanged = false;
 }
 
@@ -138,21 +140,29 @@ void MeshGrid::createUI(){
 	ImGui::Text("Z plane :"); ImGui::SameLine();
 	ImGui::InputFloat("##gridY", &gridY, 0.01f, 1.0f, "%.3f");
 
+	ImGui::Separator();
+
 	bool node_mesh = ImGui::TreeNodeEx("Noise modifier", 0);
     if(node_mesh){
+		ImGui::Text("Activate noise modifier : "); ImGui::SameLine();
+		ImGui::Checkbox("##activeNoiseModifier", &activeModifier);
 
+		if(activeModifier){
+			ImGui::Text("Frequency :"); ImGui::SameLine();
+			ImGui::InputFloat("##frequency", &frequency, 0.01f, 100.0f, "%.3f");
+			ImGui::Text("Amplitude :"); ImGui::SameLine();
+			ImGui::InputFloat("##amplitude", &amplitude, 0.01f, 100.0f, "%.3f");
+			ImGui::Text("Persistence :"); ImGui::SameLine();
+			ImGui::InputFloat("##persistence", &persistence, 0.01f, 100.0f, "%.3f");
+			ImGui::Text("Number of octaves : "); ImGui::SameLine();
+			ImGui::InputInt("##NbOctaves", &nboctaves, 1, 20);
+		}
 
-		ImGui::Text("Frequency :"); ImGui::SameLine();
-		ImGui::InputFloat("##frequency", &frequency, 0.01f, 100.0f, "%.3f");
-		ImGui::Text("Amplitude :"); ImGui::SameLine();
-		ImGui::InputFloat("##amplitude", &amplitude, 0.01f, 100.0f, "%.3f");
-		ImGui::Text("Persistence :"); ImGui::SameLine();
-		ImGui::InputFloat("##persistence", &persistence, 0.01f, 100.0f, "%.3f");
-		ImGui::Text("Number of octaves : "); ImGui::SameLine();
-		ImGui::InputInt("##NbOctaves", &nboctaves, 1, 20);
 
         ImGui::TreePop();
     }
+
+	ImGui::Separator();
 
 	this->Mesh::createUI();
 }
