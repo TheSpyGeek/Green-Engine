@@ -21,8 +21,9 @@ public:
 private:
 
     void stayCloseToTerrain(Mesh *mesh);
-    float triangle_area(int x1, int y1, int x2, int y2, int x3, int y3);
-    bool isInsideTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int x, int y);
+
+    float sign(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3);
+    bool isInTriangle(glm::vec2 pt, glm::vec2 v1, glm::vec2 v2, glm::vec2 v3);
 
     float distanceFromTerrain = 0.1f;
 

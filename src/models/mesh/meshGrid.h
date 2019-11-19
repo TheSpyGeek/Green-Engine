@@ -55,7 +55,7 @@ private:
 	int nboctaves;
 
 	bool hasChanged = true;
-	bool activeModifier = false;
+	bool activeModifier = true;
 
 };
 
