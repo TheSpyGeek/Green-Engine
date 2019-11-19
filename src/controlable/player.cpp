@@ -41,13 +41,37 @@ void Player::update(){
     }
 
     
+    stayCloseToTerrain(terrain);
 
 
     transform->setPosition(pos);   
 }
 
 
-void stayCloseToTerrain(Mesh *mesh){
+void Player::stayCloseToTerrain(Mesh *mesh){
+
+    unsigned int v1, v2, v3;
+    bool found = false;
+
+    glm::vec3 p = transform->getPosition();
+
+    for(unsigned int i=0; !found && i<mesh->getNBFaces(); i++){
+        std::vector<unsigned int> face = mesh->get_face(i);
+        assert(face.size() == 3);
+        v1 = face[0];
+        v2 = face[1];
+        v3 = face[2];
+
+        if(isInsideTriangle(mesh->get_vertex(v1).x, mesh->get_vertex(v1).z, mesh->get_vertex(v2).x, mesh->get_vertex(v2).z, mesh->get_vertex(v3).x, mesh->get_vertex(v3).z, p.x, p.z)){
+            std::cout << "Found\n";
+            found = true;
+        }
+        
+    }
+
+
+    // interpolation de y
+
 
 }
 

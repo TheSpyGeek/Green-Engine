@@ -47,10 +47,11 @@ public:
      void simplify();
 
      virtual void update();
-
-    protected:
+     
      std::vector<unsigned int> get_face(unsigned int i);
      glm::vec3        get_vertex(unsigned int i);
+
+    protected:
      glm::vec3        get_normal(unsigned int i);
      glm::vec3        get_tangent(unsigned int i);
      glm::vec2        get_coord(unsigned int i);

@@ -237,11 +237,15 @@ void Scene::loadTerrainPlayer(){
 
     objectsEngine = std::vector<EngineObject*>();
 
-    MeshObject *p = new MeshObject(addNewId(), "Terrain", new Transform(glm::vec3(0), glm::vec3(0), glm::vec3(1), glm::vec3(0.5,0,0)), new MeshGrid(16, 3, 0, 0.2, 5) ,new Lambertian(glm::vec4(0,0.6,0,1)));
+    Mesh *terrain = new MeshGrid(16, 3, 0, 0.2, 5);
+
+    MeshObject *p = new MeshObject(addNewId(), "Terrain", new Transform(glm::vec3(0), glm::vec3(0), glm::vec3(1), glm::vec3(0.5,0,0)), terrain ,new Lambertian(glm::vec4(0,0.6,0,1)));
     objectsEngine.push_back(p);
 
 
     Player *player = new Player(addNewId(), "Player", new Transform(glm::vec3(0), glm::vec3(0, 0.2, 0), glm::vec3(0.05)), new MeshLoader("../data/models/sphere.off"), new SimpleMat());
+    player->setTerrainMesh(terrain);
+
 
     p->addChild(player);
 
