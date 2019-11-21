@@ -71,3 +71,4 @@ To build :
 * https://sonarlearning.co.uk/coursepage.php?topic=game&course=ext-bb-3d-ged
 * https://www.3dgep.com/courses/
 * https://github.com/nothings/stb
+* https://www.gamedev.net/forums/topic/683834-texturing-my-procedural-terrain/
