@@ -8,11 +8,12 @@ Player::Player(int id, std::string name, Transform *t, Mesh *m, Material *mat){
 
     setName(name);
     setID(id);
-    mesh = m;
+    fullMesh = m;
+    currentMesh = fullMesh;
     material = mat;
     transform = t;
 
-    glm::vec3 center = mesh->getCenter();
+    glm::vec3 center = currentMesh->getCenter();
     t->setCenter(center);
 
     createVAO();
@@ -84,7 +85,7 @@ void Player::stayCloseToTerrain(Mesh *mesh){
         v2 = face[1];
         v3 = face[2];
 
-        if(isInTriangle(glm::vec2(p.x, p.z), glm::vec2(mesh->get_vertex(v1).x, mesh->get_vertex(v1).z), glm::vec2(mesh->get_vertex(v2).x, mesh->get_vertex(v2).z), glm::vec2(mesh->get_vertex(v3).x, mesh->get_vertex(v3).z))){
+        if(isInTriangle(glm::vec2(p.x, p.z), glm::vec2(mesh->get_vertex(v1).x, mesh->get_vertex(v1).z), glm::vec2(currentMesh->get_vertex(v2).x, currentMesh->get_vertex(v2).z), glm::vec2(currentMesh->get_vertex(v3).x, currentMesh->get_vertex(v3).z))){
             found = true;
         }
         

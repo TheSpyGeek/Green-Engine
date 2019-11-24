@@ -43,7 +43,9 @@ public:
       void drawDebug(glm::mat4 modelMat, glm::mat4 viewMat, glm::mat4 projectionMat);
       void drawGridForSimplification(glm::vec3 minimum, glm::vec3 maximum, glm::mat4 modelMat, glm::mat4 viewMat, glm::mat4 projectionMat);
 
-
+      void setResolution(int reso){
+         resolution = reso;
+      }
      void simplify();
 
      virtual void update();

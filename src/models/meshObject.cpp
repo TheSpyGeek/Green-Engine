@@ -31,9 +31,10 @@ MeshObject::MeshObject(int id, std::string n, Transform *t, Mesh *m, Material *m
     transform = t;
 
 
-    mesh = m;
+    fullMesh = m;
+    currentMesh = fullMesh;
 
-    glm::vec3 center = mesh->getCenter();
+    glm::vec3 center = currentMesh->getCenter();
     t->setCenter(center);
 
     createVAO();
@@ -50,17 +51,17 @@ MeshObject::MeshObject(int id, std::string n, Transform *t, Mesh *m, Material *m
 MeshObject::~MeshObject(){
     deleteVAO();
     delete material;
-    delete mesh;
+    delete fullMesh;
 }
 
 
 
 int MeshObject::nbVertices(){
-    return mesh->getNBVertices();
+    return currentMesh->getNBVertices();
 }
 
 int MeshObject::nbTriangles(){
-    return mesh->getNBFaces();
+    return currentMesh->getNBFaces();
 }
 
 
@@ -72,7 +73,7 @@ void MeshObject::draw(glm::mat4 modelMat, glm::mat4 viewMat, glm::mat4 projectio
     setUniform(modelMat, viewMat, projectionMat, light);
 
     glBindVertexArray(vertexArrayID);
-    glDrawElements(GL_TRIANGLES,3*mesh->getNBFaces(),GL_UNSIGNED_INT,(void *)0);
+    glDrawElements(GL_TRIANGLES,3*currentMesh->getNBFaces(),GL_UNSIGNED_INT,(void *)0);
     glBindVertexArray(0);
 
     glUseProgram(0);
@@ -80,7 +81,7 @@ void MeshObject::draw(glm::mat4 modelMat, glm::mat4 viewMat, glm::mat4 projectio
     // mesh->drawDebug(transform->getModelMat(),viewMat, projectionMat);
 
     if(showboundingbox){
-        drawBoxWithMatricess(mesh->getMin(), mesh->getMax(),modelMat, viewMat, projectionMat);
+        drawBoxWithMatricess(currentMesh->getMin(), currentMesh->getMax(),modelMat, viewMat, projectionMat);
     }
 
 
@@ -97,24 +98,24 @@ void MeshObject::createVAO(){
     glBindVertexArray(vertexArrayID);
 
     glBindBuffer(GL_ARRAY_BUFFER,buffers[0]); // vertices
-    glBufferData(GL_ARRAY_BUFFER,mesh->getNBVertices()*3*sizeof(float),mesh->getVertices(),GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,currentMesh->getNBVertices()*3*sizeof(float),currentMesh->getVertices(),GL_STATIC_DRAW);
     glEnableVertexAttribArray(POSITION_ATTRIB);
     glVertexAttribPointer(POSITION_ATTRIB,3,GL_FLOAT,GL_FALSE,0,(void *)0);
 
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,buffers[1]); // indices
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,mesh->getNBFaces()*3*sizeof(unsigned int),mesh->getFaces(),GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,currentMesh->getNBFaces()*3*sizeof(unsigned int),currentMesh->getFaces(),GL_STATIC_DRAW);
 
     /* normals */
     glEnableVertexAttribArray(VERTEX_NORMAL_ATTRIB);
     glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
-    glBufferData(GL_ARRAY_BUFFER, mesh->getNBVertices()*3* sizeof(float), mesh->getNormals(), GL_STATIC_DRAW); //normals is std::vector<float>
+    glBufferData(GL_ARRAY_BUFFER, currentMesh->getNBVertices()*3* sizeof(float), currentMesh->getNormals(), GL_STATIC_DRAW); //normals is std::vector<float>
     glVertexAttribPointer(VERTEX_NORMAL_ATTRIB, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
     /* texture coordinates */
     glEnableVertexAttribArray(VERTEX_UV_ATTRIB);
     glBindBuffer(GL_ARRAY_BUFFER, buffers[3]);
-    glBufferData(GL_ARRAY_BUFFER, mesh->getNBVertices()*2* sizeof(float), mesh->getUVs(), GL_STATIC_DRAW); //normals is std::vector<float>
+    glBufferData(GL_ARRAY_BUFFER, currentMesh->getNBVertices()*2* sizeof(float), currentMesh->getUVs(), GL_STATIC_DRAW); //normals is std::vector<float>
     glVertexAttribPointer(VERTEX_UV_ATTRIB, 2, GL_FLOAT, GL_FALSE, 0, 0);
     //indices
     glBindVertexArray(0);
@@ -139,7 +140,7 @@ void MeshObject::setUniform(glm::mat4 modelMat, glm::mat4 viewMat, glm::mat4 pro
 
 void MeshObject::update(){
     EngineObject::update();
-    mesh->update();
+    currentMesh->update();
 }
 
 
@@ -155,13 +156,13 @@ void MeshObject::createUI(char *ID){
     ImGui::Separator();
     bool node_mesh = ImGui::TreeNodeEx("Mesh", node_flags);
     if(node_mesh){
-        mesh->createUI();
+        currentMesh->createUI();
         if (ImGui::Button("Simplify")){
-            mesh->simplify();
+            currentMesh->simplify();
             createVAO();
         }
         if (ImGui::Button("Recreate")){
-            mesh->recreate();
+            currentMesh->recreate();
             createVAO();
         }
         ImGui::Text("Show bounding box "); ImGui::SameLine();
