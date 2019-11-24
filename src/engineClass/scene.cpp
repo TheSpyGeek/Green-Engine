@@ -15,6 +15,8 @@
 
 
 Scene::Scene(){
+    
+    transformWorld = new Transform();
 
     loadTerrainPlayer();
 }
@@ -24,6 +26,7 @@ Scene::~Scene(){
 }
 
 void Scene::deleteScene(){
+    delete transformWorld;
     for(unsigned int i=0; i<objectsEngine.size(); i++){
         delete objectsEngine[i];
     }

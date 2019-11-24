@@ -4,6 +4,8 @@
 #include "../models/meshObject.h"
 #include "../models/mesh/meshLoader.h"
 
+#include "../tools/camera.h"
+
 class Player : public MeshObject {
 
 public:
@@ -32,6 +34,9 @@ private:
     float heightFromTerrain = 0.1f;
 
     Mesh *terrain;
+
+    Camera *cam;
+
 
 };
 
