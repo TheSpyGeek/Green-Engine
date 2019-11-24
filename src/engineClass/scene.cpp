@@ -247,16 +247,18 @@ void Scene::loadTerrainPlayer(){
     MeshObject *p = new MeshObject(addNewId(), "Terrain", new Transform(glm::vec3(0), glm::vec3(0), glm::vec3(1), glm::vec3(0.5,0,0)), terrainFull ,new Lambertian(glm::vec4(0,0.6,0,1)));
     objectsEngine.push_back(p);
 
+    char objName[] = "../data/models/monkey.off";
 
-    Mesh *fullPlayerMesh = new MeshLoader("../data/models/sphere.off");
 
-    Mesh *mediumPlayerMesh = new MeshLoader("../data/models/sphere.off");
-    Mesh *lowPlayerMesh = new MeshLoader("../data/models/sphere.off");
+    Mesh *fullPlayerMesh = new MeshLoader(objName);
 
-    mediumPlayerMesh->setResolution(32);
+    Mesh *mediumPlayerMesh = new MeshLoader(objName);
+    Mesh *lowPlayerMesh = new MeshLoader(objName);
+
+    mediumPlayerMesh->setResolution(16);
     mediumPlayerMesh->simplify();
 
-    lowPlayerMesh->setResolution(16);
+    lowPlayerMesh->setResolution(8);
     lowPlayerMesh->simplify();
 
     Player *player = new Player(addNewId(), "Player", new Transform(glm::vec3(0), glm::vec3(0, 0.2, 0), glm::vec3(0.05)), fullPlayerMesh, new SimpleMat());

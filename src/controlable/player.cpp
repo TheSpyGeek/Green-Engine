@@ -51,7 +51,7 @@ void Player::update(){
 
     if(distanceFromCam < 1.0f){
         currentMesh = fullMesh;
-    } else if(distanceFromCam < 3.0f){
+    } else if(distanceFromCam < 2.0f){
         currentMesh = mediumMesh;
     } else {
         currentMesh = lowMesh;
@@ -64,6 +64,24 @@ void Player::update(){
         createVAO();
 
     }
+
+
+    ImGui::Begin("Debug");
+    ImGui::Separator();
+
+    ImGui::Text("LOD Informations debug");
+
+    if(cam != NULL && world != NULL){
+        ImGui::Text("Distance from the camera : %f",computeDistanceFromTheCamera());
+    }
+
+    ImGui::Text("Mesh number of vertices : %u",currentMesh->getNBVertices());
+    ImGui::Text("Mesh number of faces : %u",currentMesh->getNBFaces());
+
+    
+    ImGui::Separator();
+
+    ImGui::End();
 
 
  
@@ -176,15 +194,5 @@ void Player::createUI(char *ID){
 
 
 
-    ImGui::Begin("Debug");
-    ImGui::Separator();
-    if(cam != NULL && world != NULL){
-        ImGui::Text("Distance from the camera : %f",computeDistanceFromTheCamera());
-    }
-
-    ImGui::Text("Mesh number of vertices : %u",currentMesh->getNBVertices());
-    ImGui::Text("Mesh number of faces : %u",currentMesh->getNBFaces());
-
-    ImGui::End();
 
 }
