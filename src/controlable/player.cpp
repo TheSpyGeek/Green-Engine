@@ -45,6 +45,27 @@ void Player::update(){
     
     stayCloseToTerrain(terrain);
 
+    float distanceFromCam = computeDistanceFromTheCamera();
+
+    Mesh *previousMesh = currentMesh;
+
+    if(distanceFromCam < 1.0f){
+        currentMesh = fullMesh;
+    } else if(distanceFromCam < 3.0f){
+        currentMesh = mediumMesh;
+    } else {
+        currentMesh = lowMesh;
+    }
+
+    if(previousMesh != currentMesh){
+        glm::vec3 center = currentMesh->getCenter();
+        transform->setCenter(center);
+
+        createVAO();
+
+    }
+
+
  
 }
 
@@ -108,6 +129,17 @@ void Player::stayCloseToTerrain(Mesh *mesh){
 
 }
 
+float Player::computeDistanceFromTheCamera(){
+
+    // player position
+    glm::vec3 pos = transform->getPosition();
+
+    glm::vec4 positionProjected = cam->getView()*world->getModelMat()*glm::vec4(pos.x, pos.y, pos.z, 1.0f);
+
+    return -positionProjected.z;
+
+
+}
 
 
 
@@ -133,6 +165,26 @@ void Player::createUI(char *ID){
         ImGui::TreePop();
     }
 
+    ImGui::Separator();
+    bool node_mesh = ImGui::TreeNodeEx("Mesh", 0);
+    if(node_mesh){
+        currentMesh->createUI();
+        ImGui::TreePop();
+    }
+
     ImGui::EndChild();
+
+
+
+    ImGui::Begin("Debug");
+    ImGui::Separator();
+    if(cam != NULL && world != NULL){
+        ImGui::Text("Distance from the camera : %f",computeDistanceFromTheCamera());
+    }
+
+    ImGui::Text("Mesh number of vertices : %u",currentMesh->getNBVertices());
+    ImGui::Text("Mesh number of faces : %u",currentMesh->getNBFaces());
+
+    ImGui::End();
 
 }

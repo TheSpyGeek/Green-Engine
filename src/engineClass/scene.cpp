@@ -240,6 +240,8 @@ void Scene::loadTerrainPlayer(){
 
     objectsEngine = std::vector<EngineObject*>();
 
+    Camera *camera = new CameraProj(addNewId(), "Camera", glm::vec3(0,1,3));
+
     Mesh *terrainFull = new MeshGrid(16, 3, 0, 0.2, 5);
 
     MeshObject *p = new MeshObject(addNewId(), "Terrain", new Transform(glm::vec3(0), glm::vec3(0), glm::vec3(1), glm::vec3(0.5,0,0)), terrainFull ,new Lambertian(glm::vec4(0,0.6,0,1)));
@@ -260,11 +262,11 @@ void Scene::loadTerrainPlayer(){
     Player *player = new Player(addNewId(), "Player", new Transform(glm::vec3(0), glm::vec3(0, 0.2, 0), glm::vec3(0.05)), fullPlayerMesh, new SimpleMat());
     player->setTerrainMesh(terrainFull);
     player->setMediumAndLowMesh(mediumPlayerMesh, lowPlayerMesh);
+    player->setTransformWorldAndCamera(transformWorld, camera);
 
 
     p->addChild(player);
 
-    Camera *camera = new CameraProj(addNewId(), "Camera", glm::vec3(0,1,3));
 
     objectsEngine.push_back(camera);
 
