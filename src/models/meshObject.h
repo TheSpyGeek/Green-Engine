@@ -41,6 +41,11 @@ class MeshObject : public DrawableObject {
 
         void draw(glm::mat4 modelMat, glm::mat4 viewMat, glm::mat4 projectionMat, Light *light) override;
 
+        inline void setMediumAndLowMesh(Mesh *medium, Mesh *low){
+            mediumMesh = medium;
+            lowMesh = low;
+        }
+
 
     protected:
         void createVAO();
@@ -57,7 +62,7 @@ class MeshObject : public DrawableObject {
         bool showboundingbox = false;
 
         Mesh *currentMesh;
-        Mesh *fullMesh, *mediumMesh, *lowMesh;
+        Mesh *fullMesh, *mediumMesh = NULL, *lowMesh = NULL;
 
 };
 

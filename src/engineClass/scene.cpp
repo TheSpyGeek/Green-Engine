@@ -243,8 +243,20 @@ void Scene::loadTerrainPlayer(){
     objectsEngine.push_back(p);
 
 
-    Player *player = new Player(addNewId(), "Player", new Transform(glm::vec3(0), glm::vec3(0, 0.2, 0), glm::vec3(0.05)), new MeshLoader("../data/models/sphere.off"), new SimpleMat());
+    Mesh *fullPlayerMesh = new MeshLoader("../data/models/sphere.off");
+
+    Mesh *mediumPlayerMesh = new MeshLoader("../data/models/sphere.off");
+    Mesh *lowPlayerMesh = new MeshLoader("../data/models/sphere.off");
+
+    mediumPlayerMesh->setResolution(32);
+    mediumPlayerMesh->simplify();
+
+    lowPlayerMesh->setResolution(16);
+    lowPlayerMesh->simplify();
+
+    Player *player = new Player(addNewId(), "Player", new Transform(glm::vec3(0), glm::vec3(0, 0.2, 0), glm::vec3(0.05)), fullPlayerMesh, new SimpleMat());
     player->setTerrainMesh(terrainFull);
+    player->setMediumAndLowMesh(mediumPlayerMesh, lowPlayerMesh);
 
 
     p->addChild(player);

@@ -52,6 +52,12 @@ MeshObject::~MeshObject(){
     deleteVAO();
     delete material;
     delete fullMesh;
+    if(mediumMesh != NULL){
+        delete mediumMesh;
+    }
+    if(lowMesh != NULL){
+        delete lowMesh;
+    }
 }
 
 
