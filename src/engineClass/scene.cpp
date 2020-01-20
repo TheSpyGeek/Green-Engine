@@ -13,6 +13,7 @@
 #include "../tools/lights/directionnalLight.h"
 
 #include "../models/mesh/meshCube.h"
+#include "../models/mesh/meshLoaderOFF.h"
 
 #include "../material/simpleMat.h"
 
@@ -47,8 +48,8 @@
 
 Scene::Scene(){
     // loadGameplayScene();
-    // loadSampleScene();
-    loadExplorationScene();
+    loadSampleScene();
+    // loadExplorationScene();
 }
 
 Scene::~Scene(){
@@ -347,5 +348,8 @@ void Scene::loadSampleScene(){
     camera->addComponent<CameraRenderer*>(new CameraRenderer());
     objectsEngine.push_back(camera);
 
-    addCube();
+    GameObject *obj = new GameObject(addNewId(), "Objet");
+    obj->addComponent<Material*>(new Lambertian());
+    obj->addComponent<MeshLoaderOFF*>(new MeshLoaderOFF("../data/models/monkey.off"));
+    objectsEngine.push_back(obj);
 }
