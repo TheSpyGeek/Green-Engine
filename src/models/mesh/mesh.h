@@ -87,8 +87,7 @@ protected:
      glm::vec3 get_color(unsigned int i) {return m_colors[i];}
      
 
-     float maxX, maxY, maxZ;
-     float minX, minY, minZ;
+     glm::vec3 m_max, m_min;
 
      // data
      std::vector<glm::vec3> m_vertices;

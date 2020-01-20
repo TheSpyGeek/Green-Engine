@@ -14,8 +14,8 @@
 #endif
 
 void Mesh::initialize(){
-    maxX = 0; maxY = 0; maxZ = 0;
-    minX = 0; minY = 0; minZ = 0;
+    m_max.x = 0; m_max.y = 0; m_max.z = 0;
+    m_min.x = 0; m_min.y = 0; m_min.z = 0;
 }
 
 
@@ -201,8 +201,8 @@ void Mesh::createUI(){
     displayArray("Faces", m_faces);
 
     ImGui::Text("Bounding Box");
-    ImGui::Text("min: %f, %f, %f", minX, minY, minZ);
-    ImGui::Text("max: %f, %f, %f", maxX, maxY, maxZ);
+    ImGui::Text("min: %f, %f, %f", m_min.x, m_min.y, m_min.z);
+    ImGui::Text("max: %f, %f, %f", m_max.x, m_max.y, m_max.z);
 
 
     ImGui::Text("center: %f, %f, %f", center.x, center.y,center.z);
@@ -399,24 +399,24 @@ void Mesh::computeColor(){
 void Mesh::computeBoundingBox(){
     assert(m_vertices.size() > 0);
 
-    maxX = m_vertices[0].x; maxY = m_vertices[0].y; maxZ = m_vertices[0].z;
-    minX = m_vertices[0].x; minY = m_vertices[0].y; minZ = m_vertices[0].z;
+    m_max.x = m_vertices[0].x; m_max.y = m_vertices[0].y; m_max.z = m_vertices[0].z;
+    m_min.x = m_vertices[0].x; m_min.y = m_vertices[0].y; m_min.z = m_vertices[0].z;
 
     for(unsigned int i=0; i<m_vertices.size(); i++){
-        if(m_vertices[i].x > maxX){
-            maxX = m_vertices[i].x;
-        } else if(m_vertices[i].x < minX){
-            minX = m_vertices[i].x;
+        if(m_vertices[i].x > m_max.x){
+            m_max.x = m_vertices[i].x;
+        } else if(m_vertices[i].x < m_min.x){
+            m_min.x = m_vertices[i].x;
         }
-        if(m_vertices[i].y > maxY){
-            maxY = m_vertices[i].y;
-        } else if(m_vertices[i].y < minY){
-            minY = m_vertices[i].y;
+        if(m_vertices[i].y > m_max.y){
+            m_max.y = m_vertices[i].y;
+        } else if(m_vertices[i].y < m_min.y){
+            m_min.y = m_vertices[i].y;
         }
-        if(m_vertices[i].z > maxZ){
-            maxZ = m_vertices[i].z;
-        } else if(m_vertices[i].z < minZ){
-            minZ = m_vertices[i].z;
+        if(m_vertices[i].z > m_max.z){
+            m_max.z = m_vertices[i].z;
+        } else if(m_vertices[i].z < m_min.z){
+            m_min.z = m_vertices[i].z;
         }
     }
 
@@ -426,18 +426,18 @@ void Mesh::computeBoundingBox(){
 
 void Mesh::inflateBoundingBox(){
     const float percent = 0.1f;
-    maxX += percent*radius; maxY += percent*radius; maxZ += percent*radius;
-    minX -= percent*radius; minY -= percent*radius; minZ -= percent*radius;
+    m_max.x += percent*radius; m_max.y += percent*radius; m_max.z += percent*radius;
+    m_min.x -= percent*radius; m_min.y -= percent*radius; m_min.z -= percent*radius;
 }
 
 
 glm::vec3 Mesh::getMin(){
-    return glm::vec3(minX, minY, minZ);
+    return glm::vec3(m_min.x, m_min.y, m_min.z);
 }
 
 
 glm::vec3 Mesh::getMax(){
-    return glm::vec3(maxX, maxY, maxZ);
+    return glm::vec3(m_max.x, m_max.y, m_max.z);
 }
 
 
