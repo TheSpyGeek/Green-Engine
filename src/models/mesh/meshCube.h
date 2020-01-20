@@ -1,6 +1,17 @@
 #ifndef MESHCUBE_H
 #define MESHCUBE_H
 
+
+#if defined(IMGUI_IMPL_OPENGL_LOADER_GL3W)
+#include <GL/gl3w.h>    // Initialize with gl3wInit()
+#elif defined(IMGUI_IMPL_OPENGL_LOADER_GLEW)
+#include <GL/glew.h>    // Initialize with glewInit()
+#elif defined(IMGUI_IMPL_OPENGL_LOADER_GLAD)
+#include <glad/glad.h>  // Initialize with gladLoadGL()
+#else
+#include IMGUI_IMPL_OPENGL_LOADER_CUSTOM
+#endif
+
 #ifndef GLM_H
 #define GLM_H
 #include <glm/gtx/perpendicular.hpp>
@@ -11,7 +22,7 @@
 #endif
 
 #include "mesh.h"
-/*
+
 class MeshCube : public Mesh {
 
 public:
@@ -22,6 +33,10 @@ public:
 	void createUI();
     
     float getVoxelSize(){return m_width;}
+
+    virtual void createVAO() override;
+    virtual void drawVAO() override;
+    virtual void deleteVAO() override;
 
 private:
 
@@ -36,7 +51,11 @@ private:
     float m_width;
     bool m_centered;
 
+    
+
+    std::array<GLuint, 4> m_buffersCube;
+
 };
-*/
+
 
 #endif

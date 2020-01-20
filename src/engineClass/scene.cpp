@@ -166,7 +166,7 @@ void Scene::addGameObject(GameObject *obj){
 void Scene::addCube(){
     GameObject *cube = new GameObject(addNewId(), "Cube");
 
-    // cube->addComponent<Mesh*>(new MeshCube());
+    cube->addComponent<Mesh*>(new MeshCube());
     cube->addComponent<Material*>(new Lambertian());
     cube->addComponent<MeshRenderer*>(new MeshRenderer());
  

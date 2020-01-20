@@ -38,6 +38,7 @@ void MeshLoaderOFF::recreate(char *filename) {
     sprintf(m_filename, "%s", filename);
     create();
     computeAllInfo();
+    m_errorMessage = "";
 }
 
 
@@ -74,8 +75,6 @@ void MeshLoaderOFF::readOFFfile(char *filename) {
         error = fscanf(file,"%f %f %f\n",&(vertex.x),&(vertex.y),&(vertex.z));
         if(error==EOF) {
             printf("Unable to read vertices of %s\n",filename);
-        // MeshLoader_delete(MeshLoader);
-        // return NULL;
         }
         m_vertices[i] = vertex;
     }
@@ -105,7 +104,9 @@ void MeshLoaderOFF::createUI() {
     if(ImGui::Button("Recreate")){
         recreate(m_filename);
     }
-    ImGui::Text("Message: %s", m_errorMessage);
+    if(!m_errorMessage.empty()){
+        ImGui::TextColored(ImVec4(1,0,0,1),"%s: %s", m_errorMessage.c_str(), m_filename);
+    }
 }
 
 

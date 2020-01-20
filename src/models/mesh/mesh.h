@@ -67,9 +67,9 @@ public:
 
      virtual void update();
 
-     void createVAO();
-     void drawVAO();
-     void deleteVAO();
+     virtual void createVAO();
+     virtual void drawVAO();
+     virtual void deleteVAO();
 
      static void displayArray(char node[128], std::vector<unsigned int> array);
      static void displayArray(char node[128], std::vector<glm::vec3> array);
@@ -145,8 +145,8 @@ protected:
      void computeAllInfoWithoutNormals();
      void drawQuadWithTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 v4);
 
-     std::array<GLuint, 5> m_buffers;
      GLuint m_vertexArrayID = 0;
+     std::array<GLuint, 5> m_buffers;
 
 };
 
