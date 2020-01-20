@@ -1,7 +1,7 @@
 #include <imgui.h>
 
 
-
+#include <math.h>
 
 
 #define POSITION_ATTRIB 0
@@ -324,4 +324,88 @@ void Mesh::computeColor(){
     for(unsigned int i=0; i<getNBVertices(); i++){
         m_colors[i] = glm::vec3(1,0,0);
     }
+}
+
+std::vector<unsigned int> Mesh::get_face(unsigned int i) {
+    std::vector<unsigned int> face = std::vector<unsigned int>(3);
+    face[0] = m_faces[i*3]; face[1] = m_faces[i*3 +1]; face[2] = m_faces[i*3+2];
+    return face;
+}
+
+void Mesh::computeNormals(){
+    std::vector<glm::vec3> nf;
+
+    glm::vec3 normal;
+
+    glm::vec3 v1, v2, v3;
+    glm::vec3 v12;
+    glm::vec3 v13;
+    std::vector<unsigned int> f;
+    float norm;
+    glm::vec3 nv;
+
+    // computing normals per faces
+    nf.resize(getNBFaces()*3);
+    for(unsigned int i=0;i<getNBFaces();++i) {
+        f = get_face(i);
+
+        // the three vertices of the current face
+        v1 = get_vertex(f[0]);
+        v2 = get_vertex(f[1]);
+        v3 = get_vertex(f[2]);
+
+        // the two vectors of the current face
+        v12 = v2-v1;
+        v13 = v3-v1;
+
+        // cross product
+        normal = glm::cross(v12,v13);
+
+        // normalization
+        normal = glm::normalize(normal);
+        nf[i] = normal;
+    }
+
+    // computing normals per vertex
+    /*for(unsigned int i=0;i<normalV.size();++i) {
+        // initialization
+        normals[3*i  ] = 0.0;
+        normals[3*i+1] = 0.0;
+        normals[3*i+2] = 0.0;
+        nv[i] = 0.0;
+    }*/
+    std::vector<float> normalV;
+    normalV.resize(getNBVertices());
+    m_normals.resize(getNBVertices());
+    for(unsigned int i=0;i<getNBVertices();++i) {
+        // face normals average
+        f = get_face(i);
+        //n = &(nf[3*i]);
+
+        m_normals[f[0]] += nf[i]; normalV[f[0]] ++;
+        m_normals[f[1]] += nf[i]; normalV[f[1]] ++;
+        m_normals[f[2]] += nf[i]; normalV[f[2]] ++;
+
+/*        normals[3*f[0]  ] += nf[3*i  ];
+        normals[3*f[0]+1] += nf[3*i+1];
+        normals[3*f[0]+2] += nf[3*i+2];
+        nv[f[0]] ++;
+
+        normals[3*f[1]  ] += nf[3*i  ];
+        normals[3*f[1]+1] += nf[3*i+1];
+        normals[3*f[1]+2] += nf[3*i+2];
+        nv[f[1]] ++;
+
+        normals[3*f[2]  ] += nf[3*i  ];
+        normals[3*f[2]+1] += nf[3*i+1];
+        normals[3*f[2]+2] += nf[3*i+2];
+        nv[f[2]] ++;*/
+    }
+
+    for(unsigned int i=0;i<getNBVertices();++i) {
+        // normalization
+        m_normals[i] /= (float)normalV[i];
+    }
+
+
 }

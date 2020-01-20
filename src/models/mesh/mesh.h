@@ -61,6 +61,7 @@ public:
 
      inline unsigned int getNBFaces(){ return getNBVertices()/3; }
 
+     std::vector<unsigned int> get_face(unsigned int i);
      inline glm::vec3 get_vertex(unsigned int i) { return m_vertices[i];}
      inline glm::vec3 get_normal(unsigned int i) { return m_normals[i];}
      inline glm::vec3 get_color(unsigned int i) { return m_colors[i];}
