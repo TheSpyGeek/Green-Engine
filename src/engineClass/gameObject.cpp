@@ -4,6 +4,7 @@
 #include "../components/meshRenderer.h"
 
 #include "../material/lambertian.h"
+#include "../material/simpleMat.h"
 #include "../models/mesh/meshCube.h"
 // #include "../components/chunkRenderer.h"
 #include "../components/axisRenderer.h"
@@ -124,10 +125,14 @@ void GameObject::createUI(char *ID){
     ImGui::Separator();  
 
     if(ImGui::BeginMenu("Add Component")){
-        // if (ImGui::MenuItem("Add MeshCube")) { addComponent<Mesh*>(new MeshCube()); }
-        if (ImGui::MenuItem("Add Material")) { addComponent<Material*>(new Lambertian()); }
+        if (ImGui::MenuItem("Add MeshCube")) { addComponent<Mesh*>(new MeshCube()); }
+        ImGui::Separator();
         if (ImGui::MenuItem("Add MeshRenderer")) { addComponent<MeshRenderer*>(new MeshRenderer());  }
         if (ImGui::MenuItem("Add AxisRenderer")) { addComponent<AxisRenderer*>(new AxisRenderer());  }
+        ImGui::Separator();
+        if (ImGui::MenuItem("Add Lambertian")) { addComponent<Material*>(new Lambertian()); }
+        if (ImGui::MenuItem("Add Simple Material")) { addComponent<Material*>(new SimpleMat()); }
+        ImGui::Separator();
         // if (ImGui::MenuItem("Add Collider")) { addComponent<Collider*>(new Collider());  }
         if (ImGui::MenuItem("Add Rigidbody")) { addComponent<Rigidbody*>(new Rigidbody());  }
         if (ImGui::MenuItem("Add Player Controller")) { addComponent<PlayerController*>(new PlayerController());  }

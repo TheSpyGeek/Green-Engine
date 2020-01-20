@@ -31,13 +31,17 @@ MeshRenderer::MeshRenderer() : m_showBoundingBox(false) {
 }
 
 void MeshRenderer::start() {
-    mesh = m_gameobject->getComponent<Mesh*>();         assert(mesh != nullptr);
-    material = m_gameobject->getComponent<Material*>(); assert(material != nullptr);
+    mesh = m_gameobject->getComponent<Mesh*>();
+    material = m_gameobject->getComponent<Material*>();
 }
 
 void MeshRenderer::draw(glm::mat4 modelMat, glm::mat4 viewMat, glm::mat4 projectionMat, Light *light) {
+    if(mesh == nullptr){mesh = m_gameobject->getComponent<Mesh*>(); if(mesh == nullptr){return;}}
+    if(material == nullptr){material = m_gameobject->getComponent<Material*>(); if(material == nullptr){return;}}
 
     if(!material->getActive())
+        return;
+    if(!mesh->getActive())
         return;
 
     glUseProgram(material->getShaderID());

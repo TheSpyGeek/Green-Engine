@@ -22,7 +22,7 @@ using namespace glm;
 Lambertian::Lambertian(glm::vec4 ambientColor, glm::vec4 specularColor, float specularDeg, glm::vec4 diffuseColor, bool activeDebugNormal)
 : m_activeDebugNormal(activeDebugNormal), m_specularDeg(specularDeg), m_ambientColor(ambientColor), m_diffuseColor(diffuseColor), m_specularColor(specularColor){
 
-    setName("Material");
+    setName("Lambertian");
 
     createShader();
 
