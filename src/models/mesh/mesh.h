@@ -38,17 +38,17 @@ public:
 
      virtual ~Mesh() = default;
 
-     void *getVertices();
-     void *getFaces();
-     void *getNormals();
-     void *getUVs();
+     void *getVertices(){return &(vertices[0]);}
+     void *getFaces(){return &(faces[0]);}
+     void *getNormals(){return &(normals[0]);}
+     void *getUVs(){return &(coords[0]);}
      void *getColors(){ return &(colors[0]);}
 
-     unsigned int getNBVertices();
-     unsigned int getNBFaces();
 
-     virtual void createUI();
-     //virtual void recreate() = 0;
+     unsigned int getNBVertices(){return vertices.size();} 
+     unsigned int getNBFaces(){return faces.size()/3;}
+
+     void createUI() override;
 
      glm::vec3 getCenter();
 
@@ -69,13 +69,25 @@ public:
      void drawVAO();
      void deleteVAO();
 
+     static void displayArray(char node[128], std::vector<unsigned int> array);
+     static void displayArray(char node[128], std::vector<glm::vec3> array);
+
 protected:
-     std::vector<unsigned int> get_face(unsigned int i);
-     glm::vec3        get_vertex(unsigned int i);
-     glm::vec3        get_normal(unsigned int i);
-     glm::vec3        get_tangent(unsigned int i);
-     glm::vec2        get_coord(unsigned int i);
-     glm::vec3        get_color(unsigned int i);
+
+     std::vector<unsigned int> get_face(unsigned int i) {
+          std::vector<unsigned int> face = std::vector<unsigned int>(3);
+          face[0] = faces[i*3]; face[1] = faces[i*3 +1]; face[2] = faces[i*3+2];
+          return face;
+     }
+
+     glm::vec3 get_vertex(unsigned int i) {return vertices[i];}
+     glm::vec3 get_normal(unsigned int i) {return normals[i];}
+     glm::vec3 get_tangent(unsigned int i) {return tangents[i];}
+     glm::vec2 get_coord(unsigned int i) {return coords[i];}
+     glm::vec3 get_color(unsigned int i) {return colors[i];}
+     
+
+
 
      unsigned int  nb_vertices;
      unsigned int  nb_faces;

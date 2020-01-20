@@ -87,59 +87,9 @@ int Mesh::maxValue(std::vector<int> vec){
 }
 
 
-std::vector<unsigned int> Mesh::get_face(unsigned int i) {
-    std::vector<unsigned int> face = std::vector<unsigned int>(3);
-    face[0] = faces[i*3]; face[1] = faces[i*3 +1]; face[2] = faces[i*3+2];
-    return face;
-}
 
-glm::vec3 Mesh::get_vertex(unsigned int i) {
-  return vertices[i];
-}
-
-glm::vec3 Mesh::get_normal(unsigned int i) {
-  return normals[i];
-}
-
-glm::vec3 Mesh::get_tangent(unsigned int i) {
-  return tangents[i];
-}
-
-glm::vec2 Mesh::get_coord(unsigned int i) {
-  return coords[i];
-}
-
-glm::vec3 Mesh::get_color(unsigned int i) {
-  return colors[i];
-}
-
-void *Mesh::getVertices(){
-    return &(vertices[0]);
-}
-
-void *Mesh::getFaces(){
-    return &(faces[0]);
-}
-
-void *Mesh::getNormals(){
-    return &(normals[0]);
-}
-
-void *Mesh::getUVs(){
-    return &(coords[0]);
-}
-
-unsigned int Mesh::getNBVertices(){
-    return vertices.size();
-}
-
-unsigned int Mesh::getNBFaces(){
-    return faces.size()/3;
-}
 
 void Mesh::computeAllInfo(){
-    std::cout << __LINE__ << "\n";
-
     // pas opti !!!!
     std::vector<std::vector<unsigned int>> triangles;
     triangles.resize(faces.size()/3);
@@ -149,10 +99,8 @@ void Mesh::computeAllInfo(){
             triangles[i][j] = faces[3*i +j];
         }
     }
-    std::cout << __LINE__ << "\n";
 
     collect_one_ring (oneRing, triangles, nb_vertices);
-    std::cout << __LINE__ << "\n";
     compute_vertex_valences(valences, oneRing, triangles);
 
     computeCenter();
@@ -161,10 +109,6 @@ void Mesh::computeAllInfo(){
     computeBoundingBox();
     inflateBoundingBox();
 
-
-    // vertices = smoothing(vertices, triangles,oneRing, nbSmoothingIteration, type_smoothing, curvature,trianglesQuality);
-
-    //computeNormals();
     computeSmoothNormals();
 
     // computing colors as normals
@@ -174,13 +118,7 @@ void Mesh::computeAllInfo(){
     }
 
     computeUVCoord();
-
-
     computeTangents();
-    std::cout << __LINE__ << "\n";
-
-
-
 }
 
 void Mesh::computeAllInfoWithoutNormals(){
@@ -216,6 +154,48 @@ void Mesh::computeAllInfoWithoutNormals(){
         computeTangents();
 }
 
+void Mesh::displayArray(char node[128], std::vector<glm::vec3> array){
+    if (ImGui::TreeNode(node)){
+
+        ImGui::Columns(3, node); // 4-ways, with border
+        ImGui::Separator();
+        ImGui::Text("X"); ImGui::NextColumn();
+        ImGui::Text("Y"); ImGui::NextColumn();
+        ImGui::Text("Z"); ImGui::NextColumn();
+        ImGui::Separator();
+        for(unsigned int i=0; i<array.size(); i++){
+            ImGui::Text("%4f",array[i].x); ImGui::NextColumn();
+            ImGui::Text("%4f",array[i].y); ImGui::NextColumn();
+            ImGui::Text("%4f", array[i].z); ImGui::NextColumn();
+        }
+        ImGui::Columns(1);
+        ImGui::Separator();
+        ImGui::TreePop();
+
+    }
+}
+
+void Mesh::displayArray(char node[128], std::vector<unsigned int> array){
+    if (ImGui::TreeNode(node)){
+
+        ImGui::Columns(3, node); // 4-ways, with border
+        ImGui::Separator();
+        ImGui::Text("v1"); ImGui::NextColumn();
+        ImGui::Text("v2"); ImGui::NextColumn();
+        ImGui::Text("v3"); ImGui::NextColumn();
+        ImGui::Separator();
+        for(unsigned int i=0; i<array.size(); i+=3){
+            ImGui::Text("%u",array[3*i]); ImGui::NextColumn();
+            ImGui::Text("%u",array[3*i+1]); ImGui::NextColumn();
+            ImGui::Text("%u", array[3*i+2]); ImGui::NextColumn();
+        }
+
+        ImGui::Columns(1);
+        ImGui::Separator();
+        ImGui::TreePop();
+    }
+}
+
 
 void Mesh::createUI(){
     ImGui::Text("Number vertices: %d", getNBVertices());
@@ -232,44 +212,9 @@ void Mesh::createUI(){
 
 
     ImGui::Separator();
-    if (ImGui::TreeNode("Vertices")){
+    displayArray("Vertices", vertices);
 
-        ImGui::Columns(3, "Vertices"); // 4-ways, with border
-        ImGui::Separator();
-        ImGui::Text("X"); ImGui::NextColumn();
-        ImGui::Text("Y"); ImGui::NextColumn();
-        ImGui::Text("Z"); ImGui::NextColumn();
-        ImGui::Separator();
-        for(unsigned int i=0; i<nb_vertices; i++){
-            ImGui::Text("%4f",vertices[i].x); ImGui::NextColumn();
-            ImGui::Text("%4f",vertices[i].y); ImGui::NextColumn();
-            ImGui::Text("%4f", vertices[i].z); ImGui::NextColumn();
-        }
-
-        ImGui::Columns(1);
-        ImGui::Separator();
-        ImGui::TreePop();
-
-    }
-
-    if (ImGui::TreeNode("Faces")){
-
-        ImGui::Columns(3, "Face"); // 4-ways, with border
-        ImGui::Separator();
-        ImGui::Text("V1"); ImGui::NextColumn();
-        ImGui::Text("V2"); ImGui::NextColumn();
-        ImGui::Text("V3"); ImGui::NextColumn();
-        ImGui::Separator();
-        for(unsigned int i=0; i<nb_faces; i++){
-            ImGui::Text("%d",faces[3*i]); ImGui::NextColumn();
-            ImGui::Text("%d",faces[3*i+1]); ImGui::NextColumn();
-            ImGui::Text("%d", faces[3*i+2]); ImGui::NextColumn();
-        }
-
-        ImGui::Columns(1);
-        ImGui::Separator();
-        ImGui::TreePop();
-    }
+    displayArray("Faces", faces);
 
     ImGui::Text("Bounding Box");
     ImGui::Text("min: %f, %f, %f", minX, minY, minZ);
