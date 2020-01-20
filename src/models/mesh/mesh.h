@@ -38,15 +38,15 @@ public:
 
      virtual ~Mesh() = default;
 
-     void *getVertices(){return &(vertices[0]);}
-     void *getFaces(){return &(faces[0]);}
-     void *getNormals(){return &(normals[0]);}
-     void *getUVs(){return &(coords[0]);}
-     void *getColors(){ return &(colors[0]);}
+     void *getVertices(){return &(m_vertices[0]);}
+     void *getFaces(){return &(m_faces[0]);}
+     void *getNormals(){return &(m_normals[0]);}
+     void *getUVs(){return &(m_coords[0]);}
+     void *getColors(){ return &(m_colors[0]);}
 
 
-     unsigned int getNBVertices(){return vertices.size();} 
-     unsigned int getNBFaces(){return faces.size()/3;}
+     unsigned int getNBVertices(){return m_vertices.size();} 
+     unsigned int getNBFaces(){return m_faces.size()/3;}
 
      void createUI() override;
 
@@ -76,32 +76,27 @@ protected:
 
      std::vector<unsigned int> get_face(unsigned int i) {
           std::vector<unsigned int> face = std::vector<unsigned int>(3);
-          face[0] = faces[i*3]; face[1] = faces[i*3 +1]; face[2] = faces[i*3+2];
+          face[0] = m_faces[i*3]; face[1] = m_faces[i*3 +1]; face[2] = m_faces[i*3+2];
           return face;
      }
 
-     glm::vec3 get_vertex(unsigned int i) {return vertices[i];}
-     glm::vec3 get_normal(unsigned int i) {return normals[i];}
-     glm::vec3 get_tangent(unsigned int i) {return tangents[i];}
-     glm::vec2 get_coord(unsigned int i) {return coords[i];}
-     glm::vec3 get_color(unsigned int i) {return colors[i];}
+     glm::vec3 get_vertex(unsigned int i) {return m_vertices[i];}
+     glm::vec3 get_normal(unsigned int i) {return m_normals[i];}
+     glm::vec3 get_tangent(unsigned int i) {return m_tangents[i];}
+     glm::vec2 get_coord(unsigned int i) {return m_coords[i];}
+     glm::vec3 get_color(unsigned int i) {return m_colors[i];}
      
-
-
-
-     unsigned int  nb_vertices;
-     unsigned int  nb_faces;
 
      float maxX, maxY, maxZ;
      float minX, minY, minZ;
 
      // data
-     std::vector<glm::vec3> vertices;
-     std::vector<glm::vec3> normals;
-     std::vector<glm::vec3> tangents;
-     std::vector<glm::vec3> colors;
-     std::vector<glm::vec2> coords;
-     std::vector<unsigned int> faces;
+     std::vector<glm::vec3> m_vertices;
+     std::vector<glm::vec3> m_normals;
+     std::vector<glm::vec3> m_tangents;
+     std::vector<glm::vec3> m_colors;
+     std::vector<glm::vec2> m_coords;
+     std::vector<unsigned int> m_faces;
 
      std::vector<glm::vec3> backupVertices;
      std::vector<unsigned int> backupFaces;

@@ -88,15 +88,15 @@ int Mesh::maxValue(std::vector<int> vec){
 void Mesh::computeAllInfo(){
     // pas opti !!!!
     std::vector<std::vector<unsigned int>> triangles;
-    triangles.resize(faces.size()/3);
+    triangles.resize(m_faces.size()/3);
     for(unsigned int i=0; i<triangles.size(); i++){
         triangles[i].resize(3);
         for(unsigned int j=0; j<3; j++){
-            triangles[i][j] = faces[3*i +j];
+            triangles[i][j] = m_faces[3*i +j];
         }
     }
 
-    collect_one_ring (oneRing, triangles, nb_vertices);
+    collect_one_ring (oneRing, triangles, getNBVertices());
     compute_vertex_valences(valences, oneRing, triangles);
 
     computeCenter();
@@ -108,9 +108,9 @@ void Mesh::computeAllInfo(){
     computeSmoothNormals();
 
     // computing colors as normals
-    colors.resize(nb_vertices);
-    for(unsigned int i=0;i<nb_vertices;i++) {
-        colors[i] = (normals[i]+1.0f)/2.0f;
+    m_colors.resize(getNBVertices());
+    for(unsigned int i=0;i<getNBVertices();i++) {
+        m_colors[i] = (m_normals[i]+1.0f)/2.0f;
     }
 
     computeUVCoord();
@@ -121,15 +121,15 @@ void Mesh::computeAllInfoWithoutNormals(){
 
         // pas opti !!!!
         std::vector<std::vector<unsigned int>> triangles;
-        triangles.resize(faces.size()/3);
+        triangles.resize(m_faces.size()/3);
         for(unsigned int i=0; i<triangles.size(); i++){
             triangles[i].resize(3);
             for(unsigned int j=0; j<3; j++){
-                triangles[i][j] = faces[3*i +j];
+                triangles[i][j] = m_faces[3*i +j];
             }
         }
 
-        collect_one_ring (oneRing, triangles, nb_vertices);
+        collect_one_ring (oneRing, triangles, getNBVertices());
         compute_vertex_valences(valences, oneRing, triangles);
 
         computeCenter();
@@ -139,9 +139,9 @@ void Mesh::computeAllInfoWithoutNormals(){
         inflateBoundingBox();
 
         // computing colors as normals
-        colors.resize(nb_vertices);
-        for(unsigned int i=0;i<nb_vertices;i++) {
-            colors[i] = (normals[i]+1.0f)/2.0f;
+        m_colors.resize(getNBVertices());
+        for(unsigned int i=0;i<getNBVertices();i++) {
+            m_colors[i] = (m_normals[i]+1.0f)/2.0f;
         }
 
         computeUVCoord();
@@ -196,9 +196,9 @@ void Mesh::createUI(){
     ImGui::Text("Number faces: %d", getNBFaces());
 
     ImGui::Separator();
-    displayArray("Vertices", vertices);
+    displayArray("Vertices", m_vertices);
 
-    displayArray("Faces", faces);
+    displayArray("Faces", m_faces);
 
     ImGui::Text("Bounding Box");
     ImGui::Text("min: %f, %f, %f", minX, minY, minZ);
@@ -234,42 +234,42 @@ void Mesh::computeSmoothNormals(){
         triangles[i] = get_face(i);
     }
 
-    compute_triangle_normals(triangle_normals, triangles, vertices);
-    collect_one_ring(one_ring,triangles, vertices.size());
+    compute_triangle_normals(triangle_normals, triangles, m_vertices);
+    collect_one_ring(one_ring,triangles, m_vertices.size());
     compute_vertex_valences (valences, one_ring, triangles);
 
-    normals.resize(vertices.size());
+    m_normals.resize(m_vertices.size());
 
     unsigned int i0, i1, i2;
     glm::vec3 p0,p1,p2;
 
-    for(unsigned int i=0; i<normals.size(); i++){ // pour chaque sommet
+    for(unsigned int i=0; i<m_normals.size(); i++){ // pour chaque sommet
         glm::vec3 n = glm::vec3(0.);
         float sumalpha = 0;
         for(unsigned int j=0; j<one_ring[i].size(); j++){ // pour chaque triangle dans le voisinage
 
             // calcul angle
             i0 = triangles[one_ring[i][j]][0]; i1 = triangles[one_ring[i][j]][1]; i2 = triangles[one_ring[i][j]][2];
-            p0 = vertices[i0]; p1 = vertices[i1]; p2 = vertices[i2];
+            p0 = m_vertices[i0]; p1 = m_vertices[i1]; p2 = m_vertices[i2];
 
             if(i == i1){
-                p1 = vertices[i0];
-                p0 = vertices[i1];
+                p1 = m_vertices[i0];
+                p0 = m_vertices[i1];
             } else if(i == i2) {
-                p2 = vertices[i0];
-                p0 = vertices[i2];
+                p2 = m_vertices[i0];
+                p0 = m_vertices[i2];
             }
 
             float alpha = glm::acos(glm::dot(p1-p0, p2-p0)/(glm::length(p1-p0)*glm::length(p2-p0)));
 
-            n += alpha*triangle_normals[one_ring[i][j]];
+            n += alpha*m_vertices[one_ring[i][j]];
             sumalpha += alpha;
         }
 
 
         n /= sumalpha;
         n /= one_ring[i].size();
-        normals[i] = glm::normalize(n);
+        m_normals[i] = glm::normalize(n);
 
     }
 
@@ -313,13 +313,13 @@ void Mesh::compute_triangle_normals (std::vector<glm::vec3> & triangle_normals, 
 void Mesh::computeUVCoord(){
     // computing spherical uv coordinates
 
-    coords.resize(nb_vertices);
+    m_coords.resize(getNBVertices());
 
     glm::vec3 v1;
     glm::vec3 c;
     float r;
 
-    for(unsigned int i=0;i<nb_vertices;i++) {
+    for(unsigned int i=0;i<getNBVertices();i++) {
         v1 = get_vertex(i);
 
         // direction between center and current point
@@ -337,7 +337,7 @@ void Mesh::computeUVCoord(){
         if(c.x<0.0) coord.x = M_PI-coord.x;
         coord.x = (coord.x+(M_PI/2.0))/(2.0*M_PI);
         coord.y = acos(c.y)/M_PI;
-        coords[i] = coord;
+        m_coords[i] = coord;
     }
 }
 
@@ -349,10 +349,10 @@ void Mesh::computeTangents(){
 
     // TODO
 
-    tangents.resize(nb_vertices);
+    m_tangents.resize(getNBVertices());
 
-    for(unsigned int i=0; i<nb_vertices; i++){
-        tangents[i] = glm::vec3(0);
+    for(unsigned int i=0; i<getNBVertices(); i++){
+        m_tangents[i] = glm::vec3(0);
     }
 
 }
@@ -362,10 +362,10 @@ void Mesh::computeTangents(){
 void Mesh::computeCenter(){
     // computing center
     glm::vec3 c = glm::vec3(0);
-    for(unsigned int i=0;i<vertices.size();i++) {
-        c = vertices[i];
+    for(unsigned int i=0;i<m_vertices.size();i++) {
+        c = m_vertices[i];
     }
-    center = c/(float)nb_vertices;
+    center = c/(float)getNBVertices();
 
 }
 
@@ -376,8 +376,8 @@ void Mesh::computeRadius(){
     radius = 0.0;
     glm::vec3 c;
     float r;
-    for(unsigned int i=0;i<nb_vertices;i++) {
-      c = vertices[i]-center;
+    for(unsigned int i=0;i<getNBVertices();i++) {
+      c = m_vertices[i]-center;
 
       r = sqrt(c.x*c.x+c.y*c.y+c.z*c.z);
       radius = r>radius ? r : radius;
@@ -386,10 +386,10 @@ void Mesh::computeRadius(){
 }
 
 void Mesh::computeColor(){
-    colors.resize(nb_vertices);
+    m_colors.resize(getNBVertices());
 
-    for(unsigned int i=0; i<nb_vertices; i++){
-        colors[i] = glm::vec3(1,0,0);
+    for(unsigned int i=0; i<getNBVertices(); i++){
+        m_colors[i] = glm::vec3(1,0,0);
     }
 }
 
@@ -397,26 +397,26 @@ void Mesh::computeColor(){
 ////// COMPUTE BOUNDING BOX /////
 
 void Mesh::computeBoundingBox(){
-    assert(vertices.size() > 0);
+    assert(m_vertices.size() > 0);
 
-    maxX = vertices[0].x; maxY = vertices[0].y; maxZ = vertices[0].z;
-    minX = vertices[0].x; minY = vertices[0].y; minZ = vertices[0].z;
+    maxX = m_vertices[0].x; maxY = m_vertices[0].y; maxZ = m_vertices[0].z;
+    minX = m_vertices[0].x; minY = m_vertices[0].y; minZ = m_vertices[0].z;
 
-    for(unsigned int i=0; i<vertices.size(); i++){
-        if(vertices[i].x > maxX){
-            maxX = vertices[i].x;
-        } else if(vertices[i].x < minX){
-            minX = vertices[i].x;
+    for(unsigned int i=0; i<m_vertices.size(); i++){
+        if(m_vertices[i].x > maxX){
+            maxX = m_vertices[i].x;
+        } else if(m_vertices[i].x < minX){
+            minX = m_vertices[i].x;
         }
-        if(vertices[i].y > maxY){
-            maxY = vertices[i].y;
-        } else if(vertices[i].y < minY){
-            minY = vertices[i].y;
+        if(m_vertices[i].y > maxY){
+            maxY = m_vertices[i].y;
+        } else if(m_vertices[i].y < minY){
+            minY = m_vertices[i].y;
         }
-        if(vertices[i].z > maxZ){
-            maxZ = vertices[i].z;
-        } else if(vertices[i].z < minZ){
-            minZ = vertices[i].z;
+        if(m_vertices[i].z > maxZ){
+            maxZ = m_vertices[i].z;
+        } else if(m_vertices[i].z < minZ){
+            minZ = m_vertices[i].z;
         }
     }
 
