@@ -31,31 +31,36 @@ Mesh::~Mesh()
     deleteVAO();
 }
 
+void Mesh::displayArrayImGui(char node[56], std::vector<glm::vec3> array){
+    if (ImGui::TreeNode(node)){
+
+        ImGui::Columns(3, node); // 4-ways, with border
+        ImGui::Separator();
+        ImGui::Text("X"); ImGui::NextColumn();
+        ImGui::Text("Y"); ImGui::NextColumn();
+        ImGui::Text("Z"); ImGui::NextColumn();
+        ImGui::Separator();
+        for(unsigned int i=0; i<array.size(); i++){
+            ImGui::Text("%4f",array[i].x); ImGui::NextColumn();
+            ImGui::Text("%4f",array[i].y); ImGui::NextColumn();
+            ImGui::Text("%4f",array[i].z); ImGui::NextColumn();
+        }
+
+        ImGui::Columns(1);
+        ImGui::Separator();
+        ImGui::TreePop();
+
+    }
+}
+
 void Mesh::createUI(){
     if (ImGui::TreeNode("Mesh")){
         ImGui::Text("Number vertices: %d", getNBVertices());
         ImGui::Text("Number faces: %d", getNBFaces());
 
         ImGui::Separator();
-        if (ImGui::TreeNode("Vertices")){
-
-            ImGui::Columns(3, "Vertices"); // 4-ways, with border
-            ImGui::Separator();
-            ImGui::Text("X"); ImGui::NextColumn();
-            ImGui::Text("Y"); ImGui::NextColumn();
-            ImGui::Text("Z"); ImGui::NextColumn();
-            ImGui::Separator();
-            for(unsigned int i=0; i<getNBVertices(); i++){
-                ImGui::Text("%4f",m_vertices[i].x); ImGui::NextColumn();
-                ImGui::Text("%4f",m_vertices[i].y); ImGui::NextColumn();
-                ImGui::Text("%4f",m_vertices[i].z); ImGui::NextColumn();
-            }
-
-            ImGui::Columns(1);
-            ImGui::Separator();
-            ImGui::TreePop();
-
-        }
+        displayArrayImGui("Vertices", m_vertices);
+        
 
         ImGui::Text("Bounding Box");
         ImGui::Text("min: %f, %f, %f", m_minX, m_minY, m_minZ);
@@ -219,6 +224,19 @@ void Mesh::clear() {
 
 void Mesh::computeAllInfo(){
 
+    // pas opti !!!!
+    std::vector<std::vector<unsigned int>> triangles;
+    triangles.resize(m_faces.size()/3);
+    for(unsigned int i=0; i<triangles.size(); i++){
+        triangles[i].resize(3);
+        for(unsigned int j=0; j<3; j++){
+            triangles[i][j] = m_faces[3*i +j];
+        }
+    }
+
+    collect_one_ring (m_oneRing, triangles, getNBVertices());
+    compute_vertex_valences(m_valences, m_oneRing, triangles);
+
     computeCenter();
     computeRadius();
 
@@ -228,7 +246,13 @@ void Mesh::computeAllInfo(){
 
     // vertices = smoothing(vertices, triangles,oneRing, nbSmoothingIteration, type_smoothing, curvature,trianglesQuality);
 
-    computeNormals();
+    // computeNormals();
+    m_normals.resize(getNBVertices());
+    computeSmoothNormals();
+    printf("Nb normals : %u\n", m_normals.size());
+    /*for(unsigned int i=0; i<m_normals.size(); i++){
+        m_normals[i] = glm::vec3(1);
+    }*/
 
     // computing colors as normals
     m_colors.resize(getNBVertices());
@@ -408,5 +432,142 @@ void Mesh::computeNormals(){
         m_normals[i] /= (float)normalV[i];
     }
 
+
+}
+
+void Mesh::compute_vertex_valences (std::vector<int> & valences, std::vector<std::vector<unsigned int>> one_ring, std::vector<std::vector<unsigned int> > triangles) {
+    valences = std::vector<int>(one_ring.size());
+
+    std::vector<unsigned int> vecVertex;
+
+    for(unsigned int i=0; i<one_ring.size(); i++){ // pour chaque sommet
+
+        unsigned int current = i;
+
+        vecVertex = std::vector<unsigned int>();
+        valences[i] = 0;
+
+        for(unsigned int j=0; j<one_ring[i].size(); j++){ // pour chaque triangle adjacent
+            for(unsigned int k=0; k<triangles[one_ring[i][j]].size(); k++){
+                unsigned int vert = triangles[one_ring[i][j]][k];
+                if(vert != current && !alreadyExist(vert, vecVertex)){
+                    vecVertex.push_back(vert);
+                    valences[i]++;
+                }
+            }
+        }
+    }
+
+}
+
+
+// calcul le 1-voisinage des sommets
+void Mesh::collect_one_ring (std::vector<std::vector<unsigned int> > & one_ring, std::vector<std::vector<unsigned int> > triangles, unsigned int nbVertices) {
+    one_ring = std::vector<std::vector<unsigned int>>(nbVertices);
+
+    for(unsigned int i=0; i<triangles.size(); i++){ // pour chaque triangle
+
+        for(unsigned int j=0; j<triangles[i].size(); j++){ // pour chaque sommet dans le triangle
+
+            unsigned int currentV = triangles[i][j];
+            one_ring[currentV].push_back(i);
+        }
+    }
+
+}
+
+bool Mesh::alreadyExist(unsigned int num, std::vector<unsigned int> vec){
+    for(unsigned int i=0; i<vec.size(); i++){
+        if(vec[i] == num){
+            return true;
+        }
+    }
+    return false;
+}
+
+
+
+
+void Mesh::computeSmoothNormals(){
+    std::vector<std::vector<unsigned int>> one_ring;
+    std::vector<glm::vec3> triangle_normals;
+    std::vector<int> valences;
+
+    std::vector<std::vector<unsigned int>> triangles;
+    triangles.resize(getNBFaces());
+    for(unsigned int i=0; i<triangles.size(); i++){
+        triangles[i] = get_face(i);
+    }
+
+    compute_triangle_normals(triangle_normals, triangles, m_vertices);
+    collect_one_ring(one_ring,triangles, m_vertices.size());
+    compute_vertex_valences (valences, one_ring, triangles);
+
+    m_normals.resize(getNBVertices());
+
+    unsigned int i0, i1, i2;
+    glm::vec3 p0,p1,p2;
+
+    for(unsigned int i=0; i<m_normals.size(); i++){ // pour chaque sommet
+        glm::vec3 n = glm::vec3(0.);
+        float sumalpha = 0;
+        for(unsigned int j=0; j<one_ring[i].size(); j++){ // pour chaque triangle dans le voisinage
+
+            // calcul angle
+            i0 = triangles[one_ring[i][j]][0]; i1 = triangles[one_ring[i][j]][1]; i2 = triangles[one_ring[i][j]][2];
+            p0 = m_vertices[i0]; p1 = m_vertices[i1]; p2 = m_vertices[i2];
+
+            if(i == i1){
+                p1 = m_vertices[i0];
+                p0 = m_vertices[i1];
+            } else if(i == i2) {
+                p2 = m_vertices[i0];
+                p0 = m_vertices[i2];
+            }
+
+            float alpha = glm::acos(glm::dot(p1-p0, p2-p0)/(glm::length(p1-p0)*glm::length(p2-p0)));
+
+            n += alpha*triangle_normals[one_ring[i][j]];
+            sumalpha += alpha;
+        }
+
+
+        n /= sumalpha;
+        if(one_ring[i].size() == 0){
+            m_normals[i] = glm::vec3(1.0);
+        } else {
+            n /= one_ring[i].size();
+            m_normals[i] = glm::normalize(n);
+        }
+            
+
+    }
+
+
+}
+
+// a partir d'un triangle calcul la normales du triangle puis la renvoie sous forme de vec3
+glm::vec3 Mesh::computeNormalOfOneTriangle(std::vector<unsigned int> triangle, std::vector<glm::vec3> indexed_vertices){
+
+    unsigned int i0,i1,i2;
+    glm::vec3 p0, p1, p2;
+
+    i0 = triangle[0]; i1 = triangle[1]; i2=triangle[2];
+
+    p0 = indexed_vertices[i0]; p1 = indexed_vertices[i1]; p2 = indexed_vertices[i2];
+
+    glm::vec3 normal = glm::cross(p1-p0, p2-p0)/glm::length(glm::cross(p1-p0, p2-p0));
+
+    return normal;
+}
+
+void Mesh::compute_triangle_normals (std::vector<glm::vec3> & triangle_normals, std::vector<std::vector<unsigned int> > triangles, std::vector<glm::vec3> indexed_vertices){
+
+    triangle_normals = std::vector<glm::vec3>(triangles.size());
+
+    for(unsigned int i=0; i<triangles.size(); i++){
+        glm::vec3 n = computeNormalOfOneTriangle(triangles[i], indexed_vertices);
+        triangle_normals[i] = n;
+    }
 
 }

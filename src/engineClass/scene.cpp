@@ -350,7 +350,7 @@ void Scene::loadSampleScene(){
 
     GameObject *obj = new GameObject(addNewId(), "Objet");
     obj->addComponent<Material*>(new Lambertian());
-    obj->addComponent<MeshLoaderOFF*>(new MeshLoaderOFF("../data/models/monkey.off"));
+    obj->addComponent<MeshLoaderOFF*>(new MeshLoaderOFF("../data/models/icosa.off"));
     obj->addComponent<MeshRenderer*>(new MeshRenderer());
     objectsEngine.push_back(obj);
 }

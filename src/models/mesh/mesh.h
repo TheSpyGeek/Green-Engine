@@ -80,6 +80,8 @@ public:
 
      void clear();
 
+     static void displayArrayImGui(char node[56], std::vector<glm::vec3> array);
+
 protected:
 
      float m_maxX, m_maxY, m_maxZ;
@@ -107,7 +109,19 @@ protected:
      void computeCenter();
      void computeRadius();
      void computeColor();
- 
+
+     void compute_vertex_valences (std::vector<int> & valences, std::vector<std::vector<unsigned int>> one_ring, std::vector<std::vector<unsigned int> > triangles);
+     void collect_one_ring (std::vector<std::vector<unsigned int> > & one_ring, std::vector<std::vector<unsigned int> > triangles, unsigned int nbVertices);
+     bool alreadyExist(unsigned int num, std::vector<unsigned int> vec);
+
+     void computeSmoothNormals();
+     void compute_triangle_normals(std::vector<glm::vec3> & triangle_normals, std::vector<std::vector<unsigned int> > triangles, std::vector<glm::vec3> indexed_vertices);
+     glm::vec3 computeNormalOfOneTriangle(std::vector<unsigned int> triangle, std::vector<glm::vec3> indexed_vertices);
+
+
+     std::vector<std::vector<unsigned int>> m_oneRing;
+     // degree de chaque sommet
+     std::vector<int> m_valences;
 
      void computeBoundingBox();
      void inflateBoundingBox();

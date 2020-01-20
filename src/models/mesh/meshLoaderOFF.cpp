@@ -112,7 +112,10 @@ void MeshLoaderOFF::readOFFfile(char *filename){
 void MeshLoaderOFF::createUI(){
 
     ImGui::InputText("##fileMeshLoader", m_filename, IM_ARRAYSIZE(m_filename));
-    this->Mesh::createUI();
+    // this->Mesh::createUI();
+
+    ImGui::Text("Nombre de normals: %u", m_normals.size());
+    displayArrayImGui("Normals", m_normals);
 
 }
 
