@@ -96,8 +96,8 @@ void Mesh::computeAllInfo(){
         }
     }
 
-    collect_one_ring (oneRing, triangles, getNBVertices());
-    compute_vertex_valences(valences, oneRing, triangles);
+    collect_one_ring (m_oneRing, triangles, getNBVertices());
+    compute_vertex_valences(m_valences, m_oneRing, triangles);
 
     computeCenter();
     computeRadius();
@@ -129,8 +129,8 @@ void Mesh::computeAllInfoWithoutNormals(){
             }
         }
 
-        collect_one_ring (oneRing, triangles, getNBVertices());
-        compute_vertex_valences(valences, oneRing, triangles);
+        collect_one_ring (m_oneRing, triangles, getNBVertices());
+        compute_vertex_valences(m_valences, m_oneRing, triangles);
 
         computeCenter();
         computeRadius();
@@ -205,15 +205,12 @@ void Mesh::createUI(){
     ImGui::Text("max: %f, %f, %f", m_max.x, m_max.y, m_max.z);
 
 
-    ImGui::Text("center: %f, %f, %f", center.x, center.y,center.z);
-    ImGui::Text("radius: %f", radius);
+    ImGui::Text("center: %f, %f, %f", m_center.x, m_center.y,m_center.z);
+    ImGui::Text("radius: %f", m_radius);
 
 }
 
 
-glm::vec3 Mesh::getCenter(){
-    return center;
-}
 
 
 ///////////////////// COMPUTE NORMAL !!!! /////////////////////
@@ -323,7 +320,7 @@ void Mesh::computeUVCoord(){
         v1 = get_vertex(i);
 
         // direction between center and current point
-        c = v1-center;
+        c = v1-m_center;
 
         // normalization
         c = glm::normalize(c);
@@ -365,7 +362,7 @@ void Mesh::computeCenter(){
     for(unsigned int i=0;i<m_vertices.size();i++) {
         c = m_vertices[i];
     }
-    center = c/(float)getNBVertices();
+    m_center = c/(float)getNBVertices();
 
 }
 
@@ -373,14 +370,14 @@ void Mesh::computeCenter(){
 
 void Mesh::computeRadius(){
 
-    radius = 0.0;
+    m_radius = 0.0;
     glm::vec3 c;
     float r;
     for(unsigned int i=0;i<getNBVertices();i++) {
-      c = m_vertices[i]-center;
+      c = m_vertices[i]-m_center;
 
       r = sqrt(c.x*c.x+c.y*c.y+c.z*c.z);
-      radius = r>radius ? r : radius;
+      m_radius = r>m_radius ? r : m_radius;
     }
 
 }
@@ -426,19 +423,11 @@ void Mesh::computeBoundingBox(){
 
 void Mesh::inflateBoundingBox(){
     const float percent = 0.1f;
-    m_max.x += percent*radius; m_max.y += percent*radius; m_max.z += percent*radius;
-    m_min.x -= percent*radius; m_min.y -= percent*radius; m_min.z -= percent*radius;
+    m_max.x += percent*m_radius; m_max.y += percent*m_radius; m_max.z += percent*m_radius;
+    m_min.x -= percent*m_radius; m_min.y -= percent*m_radius; m_min.z -= percent*m_radius;
 }
 
 
-glm::vec3 Mesh::getMin(){
-    return glm::vec3(m_min.x, m_min.y, m_min.z);
-}
-
-
-glm::vec3 Mesh::getMax(){
-    return glm::vec3(m_max.x, m_max.y, m_max.z);
-}
 
 
 

@@ -50,15 +50,16 @@ public:
 
      void createUI() override;
 
-     glm::vec3 getCenter();
+     glm::vec3 getCenter(){return m_center;}
 
-     glm::vec3 getMin();
-     glm::vec3 getMax();
+
+     glm::vec3 getMin(){return m_min;}
+     glm::vec3 getMax(){return m_max;}
 
 
       // DEBUG
-      void drawDebug(glm::mat4 modelMat, glm::mat4 viewMat, glm::mat4 projectionMat);
-      void drawGridForSimplification(glm::vec3 minimum, glm::vec3 maximum, glm::mat4 modelMat, glm::mat4 viewMat, glm::mat4 projectionMat);
+     void drawDebug(glm::mat4 modelMat, glm::mat4 viewMat, glm::mat4 projectionMat);
+     void drawGridForSimplification(glm::vec3 minimum, glm::vec3 maximum, glm::mat4 modelMat, glm::mat4 viewMat, glm::mat4 projectionMat);
 
 
      void simplify();
@@ -97,20 +98,18 @@ protected:
      std::vector<glm::vec2> m_coords;
      std::vector<unsigned int> m_faces;
 
-     std::vector<glm::vec3> backupVertices;
-     std::vector<unsigned int> backupFaces;
 
      // voisinage
-     std::vector<std::vector<unsigned int>> oneRing;
+     std::vector<std::vector<unsigned int>> m_oneRing;
      // degree de chaque sommet
-     std::vector<int> valences;
+     std::vector<int> m_valences;
 
-     std::vector<glm::vec3> curvature;
-     std::vector<float> trianglesQuality;
+     //std::vector<glm::vec3> curvature;
+     //std::vector<float> trianglesQuality;
 
      // info
-     glm::vec3      center;
-     float          radius;
+     glm::vec3      m_center;
+     float          m_radius;
 
      void initialize();
 
