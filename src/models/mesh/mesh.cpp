@@ -494,38 +494,37 @@ std::vector<int> indexToCell(int resolution, int index){
 
 void Mesh::createVAO(){
 
-    buffers = new GLuint[5];
 
-    glGenBuffers(5, buffers);
-    glGenVertexArrays(1,&vertexArrayID);
+    glGenBuffers(m_buffers.size(), m_buffers.data());
+    glGenVertexArrays(1,&m_vertexArrayID);
 
     // create the VBO associated with the grid (the terrain)
-    glBindVertexArray(vertexArrayID);
+    glBindVertexArray(m_vertexArrayID);
 
-    glBindBuffer(GL_ARRAY_BUFFER,buffers[0]); // vertices
+    glBindBuffer(GL_ARRAY_BUFFER,m_buffers[0]); // vertices
     glBufferData(GL_ARRAY_BUFFER,getNBVertices()*3*sizeof(float),getVertices(),GL_STATIC_DRAW);
-    glEnableVertexAttribArray(POSITION_ATTRIB);
-    glVertexAttribPointer(POSITION_ATTRIB,3,GL_FLOAT,GL_FALSE,0,(void *)0);
+    glEnableVertexAttribArray(VERTEX_POSITION_ATTRIB);
+    glVertexAttribPointer(VERTEX_POSITION_ATTRIB,3,GL_FLOAT,GL_FALSE,0,(void *)0);
 
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,buffers[1]); // indices
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,m_buffers[1]); // indices
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,getNBFaces()*3*sizeof(unsigned int),getFaces(),GL_STATIC_DRAW);
 
     /* normals */
     glEnableVertexAttribArray(VERTEX_NORMAL_ATTRIB);
-    glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
+    glBindBuffer(GL_ARRAY_BUFFER, m_buffers[2]);
     glBufferData(GL_ARRAY_BUFFER, getNBVertices()*3* sizeof(float), getNormals(), GL_STATIC_DRAW); //normals is std::vector<float>
     glVertexAttribPointer(VERTEX_NORMAL_ATTRIB, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
     /* texture coordinates */
     glEnableVertexAttribArray(VERTEX_UV_ATTRIB);
-    glBindBuffer(GL_ARRAY_BUFFER, buffers[3]);
+    glBindBuffer(GL_ARRAY_BUFFER, m_buffers[3]);
     glBufferData(GL_ARRAY_BUFFER, getNBVertices()*2* sizeof(float), getUVs(), GL_STATIC_DRAW); //normals is std::vector<float>
     glVertexAttribPointer(VERTEX_UV_ATTRIB, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
     /* colors */
     glEnableVertexAttribArray(VERTEX_UV_ATTRIB);
-    glBindBuffer(GL_ARRAY_BUFFER, buffers[4]);
+    glBindBuffer(GL_ARRAY_BUFFER, m_buffers[4]);
     glBufferData(GL_ARRAY_BUFFER, getNBVertices()*3* sizeof(float), getColors(), GL_STATIC_DRAW); //normals is std::vector<float>
     glVertexAttribPointer(VERTEX_COLOR_ATTRIB, 3, GL_FLOAT, GL_FALSE, 0, 0);
     //indices
@@ -533,13 +532,14 @@ void Mesh::createVAO(){
 }
 
 void Mesh::deleteVAO(){
-    glDeleteBuffers(5,buffers);
-    glDeleteVertexArrays(1,&vertexArrayID);
-    delete buffers;
+    if (m_vertexArrayID != 0){
+        glDeleteBuffers(m_buffers.size(), m_buffers.data());
+        glDeleteVertexArrays(1,&m_vertexArrayID);
+    }
 }
 
 void Mesh::drawVAO(){
-    glBindVertexArray(vertexArrayID);
+    glBindVertexArray(m_vertexArrayID);
     glDrawElements(GL_TRIANGLES,3*getNBFaces(),GL_UNSIGNED_INT,(void *)0);
     glBindVertexArray(0);
 }

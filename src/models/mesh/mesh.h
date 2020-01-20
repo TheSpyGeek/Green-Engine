@@ -23,10 +23,11 @@
 #include <string>
 #include <vector>
 #include <stdio.h>
+#include <array>
 
 #include "../../components/component.h"
 
-#define POSITION_ATTRIB 0
+#define VERTEX_POSITION_ATTRIB 0
 #define VERTEX_NORMAL_ATTRIB 1
 #define VERTEX_UV_ATTRIB 2
 #define VERTEX_COLOR_ATTRIB 3
@@ -130,7 +131,7 @@ protected:
      bool alreadyExist(unsigned int num, std::vector<unsigned int> vec);
      void collect_one_ring (std::vector<std::vector<unsigned int> > & one_ring, std::vector<std::vector<unsigned int> > triangles, unsigned int nbVertices);
 
-     ///// COMPUTE NORMALES
+     ///// COMPUTE NORMALS
 
      void computeNormals();
      void computeSmoothNormals();
@@ -142,8 +143,8 @@ protected:
      void computeAllInfoWithoutNormals();
      void drawQuadWithTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 v4);
 
-     GLuint *buffers;
-     GLuint vertexArrayID;
+     std::array<GLuint, 5> m_buffers;
+     GLuint m_vertexArrayID = 0;
 
 };
 
