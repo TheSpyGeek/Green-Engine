@@ -13,7 +13,11 @@ MeshLoaderOFF::MeshLoaderOFF(char *filename) {
     setName("Mesh Loader OFF");
 
     sprintf(m_filename, "%s", filename);
-    readOFFfile(filename);
+    create();
+}
+
+void MeshLoaderOFF::create() {
+    readOFFfile(m_filename);
 
     computeAllInfo();
 
@@ -22,40 +26,26 @@ MeshLoaderOFF::MeshLoaderOFF(char *filename) {
 
 
 
-/*
-void MeshLoaderOFF::recreate(){
+void MeshLoaderOFF::recreate(char *filename) {
 
-    if(strcmp(currentFilename, backupFilename) == 0){ // meme fichier
-        cleanup();
-        vertices = backupVertices;
-        faces = backupFaces;
-        nb_vertices = backupVertices.size();
-        nb_faces = backupFaces.size()/3;
-    } else {
-        if(fopen(currentFilename,"r") == NULL) {
-          
-    initialize();  return;
-        }
-        cleanup();
-        readOFFfile(currentFilename);
-        sprintf(backupFilename, "%s", currentFilename);
-        backupVertices = vertices;
-        backupFaces = faces;
-        nb_vertices = backupVertices.size();
-        nb_faces = backupFaces.size()/3;
+    FILE *file;
+    if((file=fopen(filename,"r"))==NULL) {
+        m_errorMessage = "Unable to read ";
+        //printf("Unable to read %s\n",filename);
+        return;
     }
-
+    cleanup();
+    sprintf(m_filename, "%s", filename);
+    create();
     computeAllInfo();
-
-
-}*/
+}
 
 
 
 
 
 /// Read vertices and faces from the file "filename" at the format OFF
-void MeshLoaderOFF::readOFFfile(char *filename){
+void MeshLoaderOFF::readOFFfile(char *filename) {
 
     unsigned int tmp;
     unsigned int i,j;
@@ -108,20 +98,18 @@ void MeshLoaderOFF::readOFFfile(char *filename){
     fclose(file);
 }
 
-void MeshLoaderOFF::createUI(){
+void MeshLoaderOFF::createUI() {
 
     ImGui::InputText("##fileMeshLoader", m_filename, IM_ARRAYSIZE(m_filename));
-    // this->Mesh::createUI();
 
-    ImGui::Text("Nombre de normals: %u", m_normals.size());
-    //isplayArrayImGui("Normals", m_normals);
-
+    if(ImGui::Button("Recreate")){
+        recreate(m_filename);
+    }
+    ImGui::Text("Message: %s", m_errorMessage);
 }
 
-void MeshLoaderOFF::cleanup(){
-
-}
 
 MeshLoaderOFF::~MeshLoaderOFF() {
     cleanup();
 }
+

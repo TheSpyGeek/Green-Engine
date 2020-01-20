@@ -11,13 +11,16 @@ public:
 
     void createUI() override;
 
+    void recreate(char *filename);
+    void create();
+
 protected:
-    void cleanup();
 
     void readOFFfile(char *filename);
 
     char m_filename[1024];
 
+    std::string m_errorMessage = "";
 };
 
 

@@ -543,3 +543,15 @@ void Mesh::drawVAO(){
     glDrawElements(GL_TRIANGLES,3*getNBFaces(),GL_UNSIGNED_INT,(void *)0);
     glBindVertexArray(0);
 }
+
+
+void Mesh::cleanup(){
+    m_vertices.clear();
+    m_faces.clear();
+    m_normals.clear();
+    m_tangents.clear();
+    m_valences.clear();
+    m_oneRing.clear();
+    m_colors.clear();
+    m_coords.clear();
+}

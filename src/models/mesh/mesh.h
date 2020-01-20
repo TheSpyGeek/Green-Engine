@@ -124,6 +124,8 @@ protected:
 
      void computeAllInfo();
 
+     void cleanup();
+
      /// COMPUTE VALENCE + ONE RING
 
      int maxValue(std::vector<int> vec);
