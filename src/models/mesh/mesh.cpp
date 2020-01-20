@@ -214,3 +214,114 @@ void Mesh::clear() {
      m_tangents.clear();
      m_backupVertices.clear();
 }
+
+
+void Mesh::computeAllInfo(){
+
+    computeCenter();
+    computeRadius();
+
+    computeBoundingBox();
+    inflateBoundingBox();
+
+
+    // vertices = smoothing(vertices, triangles,oneRing, nbSmoothingIteration, type_smoothing, curvature,trianglesQuality);
+
+    computeNormals();
+
+    // computing colors as normals
+    m_colors.resize(getNBVertices());
+    for(unsigned int i=0;i<getNBVertices();i++) {
+        m_colors[i] = (m_normals[i]+1.0f)/2.0f;
+    }
+
+    computeUVCoord();
+
+
+    computeTangents();
+
+}
+
+
+
+
+
+
+////////////////// COMPUTE TEXTURE COORDINATE ///////////////
+
+void Mesh::computeUVCoord(){
+    // computing spherical uv coordinates
+
+    m_coords.resize(getNBVertices());
+
+    glm::vec3 v1;
+    glm::vec3 c;
+    float r;
+
+
+    for(unsigned int i=0;i<getNBVertices();i++) {
+      v1 = get_vertex(i);
+
+      // direction between center and current point
+      c = v1-m_center;
+
+      // normalization
+      c = glm::normalize(c);
+
+      glm::vec2 coord;
+      // elevation & azimuth remapped between 0 and 1
+      r = c.z/sqrt(c.x*c.x+c.z*c.z);
+      if(r>=1.0f) r = 1.0f;
+      if(r<=-1.0f) r = -1.0f;
+      coord.x = asin(r);
+      if(c.x<0.0) coord.x = M_PI-coord.x;
+      coord.x = (coord.x+(M_PI/2.0))/(2.0*M_PI);
+      coord.y = acos(c.y)/M_PI;
+      m_coords[i] = coord;
+    }
+}
+
+
+void Mesh::computeTangents(){
+
+    // TODO
+
+    m_tangents.resize(getNBVertices());
+
+    for(unsigned int i=0; i<getNBVertices(); i++){
+        m_tangents[i] = glm::vec3(0);
+    }
+
+}
+
+void Mesh::computeCenter(){
+    // computing center
+    glm::vec3 c = glm::vec3(0);
+    for(unsigned int i=0;i<getNBVertices();i++) {
+        c = m_vertices[i];
+    }
+    m_center = c/(float)getNBVertices();
+
+}
+
+void Mesh::computeRadius(){
+
+    m_radius = 0.0;
+    glm::vec3 c;
+    float r;
+    for(unsigned int i=0;i<getNBVertices();i++) {
+      c = m_vertices[i]-m_center;
+
+      r = sqrt(c.x*c.x+c.y*c.y+c.z*c.z);
+      m_radius = r>m_radius ? r : m_radius;
+    }
+
+}
+
+void Mesh::computeColor(){
+    m_colors.resize(getNBVertices());
+
+    for(unsigned int i=0; i<getNBVertices(); i++){
+        m_colors[i] = glm::vec3(1,0,0);
+    }
+}

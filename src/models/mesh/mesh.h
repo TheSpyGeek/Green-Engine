@@ -78,12 +78,13 @@ public:
 
      void clear();
 
-    protected:
+protected:
 
      float m_maxX, m_maxY, m_maxZ;
      float m_minX, m_minY, m_minZ;
 
      // data
+     std::vector<unsigned int> m_faces;
      std::vector<glm::vec3> m_vertices;
      std::vector<glm::vec3> m_normals;
      std::vector<glm::vec3> m_colors;
@@ -95,7 +96,15 @@ public:
 
    
      float          m_radius;
+     glm::vec3 m_center;
 
+     void computeAllInfo();
+     void computeNormals();
+     void computeUVCoord();
+     void computeTangents();
+     void computeCenter();
+     void computeRadius();
+     void computeColor();
  
 
      void computeBoundingBox();
