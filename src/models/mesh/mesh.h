@@ -130,8 +130,6 @@ protected:
 
      void computeAllInfo();
 
-
-
      /// COMPUTE VALENCE + ONE RING
 
      int maxValue(std::vector<int> vec);
@@ -148,38 +146,6 @@ protected:
      glm::vec3 computeNormalOfOneTriangle(std::vector<unsigned int> triangle, std::vector<glm::vec3> indexed_vertices);
 
 
-     const char uniformSmoothingString[1024] = "Uniform";
-     const char laplaceSmoothingString[1024] = "Bel Trami";
-
-
-     char type_smoothing[1024] = "Uniform";
-    bool smoothNormals = false;
-
-
-
-     /////// SMOOTHING VERTICES ///////
-
-     int nbSmoothingIteration = 0;
-
-
-     std::vector<glm::vec3> smoothing(const std::vector<glm::vec3> & meshvertices, const std::vector<std::vector<unsigned int> > & triangles,
-        std::vector<std::vector<unsigned int> > one_ring, unsigned int iterations, char type_smooth[],
-        std::vector<glm::vec3> & meshcurvature,std::vector<float> & qualityVertex);
-
-     std::vector<glm::vec3> calc_mean_curvature (const std::vector<glm::vec3> & vertices, const std::vector<std::vector<unsigned int>> & triangles, std::vector<std::vector<unsigned int>> one_ring);
-     float calc_weights(const std::vector<glm::vec3> & vertices, std::vector<std::vector<unsigned int> > one_ring, unsigned int v, unsigned int vi);
-
-     std::vector<float> calc_quality_mesh(const std::vector<glm::vec3> & vertices, const std::vector<std::vector<unsigned int> > & triangles);
-     float calc_triangle_quality(const std::vector<glm::vec3> & vertices, std::vector<unsigned int> triangles);
-     float max3v(float a, float b, float c);
-     float cot(float theta);
-
-
-     /// SIMPLIFICATION /////
-     int resolution = 1;
-
-     // renvoie dans quelle cellule le sommet se trouve
-     std::vector<int> indexOffCell(glm::vec3 start, glm::vec3 offset, glm::vec3 vertex);
      void computeAllInfoWithoutNormals();
      void drawQuadWithTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 v4);
 

@@ -14,12 +14,8 @@
 #endif
 
 void Mesh::initialize(){
-    smoothNormals = false;
-    nbSmoothingIteration = 0;
-    sprintf(type_smoothing, "%s",uniformSmoothingString);
     maxX = 0; maxY = 0; maxZ = 0;
     minX = 0; minY = 0; minZ = 0;
-    resolution = 1;
 }
 
 
@@ -142,8 +138,6 @@ void Mesh::computeAllInfoWithoutNormals(){
         computeBoundingBox();
         inflateBoundingBox();
 
-        // vertices = smoothing(vertices, triangles,oneRing, nbSmoothingIteration, type_smoothing, curvature,trianglesQuality);
-
         // computing colors as normals
         colors.resize(nb_vertices);
         for(unsigned int i=0;i<nb_vertices;i++) {
@@ -200,16 +194,6 @@ void Mesh::displayArray(char node[128], std::vector<unsigned int> array){
 void Mesh::createUI(){
     ImGui::Text("Number vertices: %d", getNBVertices());
     ImGui::Text("Number faces: %d", getNBFaces());
-    ImGui::Text("Smooth Normal "); ImGui::SameLine();
-    ImGui::Checkbox("smoothNormal",&smoothNormals);
-
-
-
-    ////// SIMPLIFICATION DE SOMMETS ///
-    ImGui::Text("vertices simplification");
-    ImGui::Text("resolution : "); ImGui::SameLine();
-    ImGui::InputInt("##resolution", &resolution, 1, 100);
-
 
     ImGui::Separator();
     displayArray("Vertices", vertices);
@@ -235,11 +219,7 @@ glm::vec3 Mesh::getCenter(){
 ///////////////////// COMPUTE NORMAL !!!! /////////////////////
 
 void Mesh::computeNormals(){
-    if(smoothNormals){
-        computeSmoothNormals();
-    } else {
-        computeNormalsWithAngles();
-    }
+    computeSmoothNormals();
 }
 
 
@@ -326,292 +306,6 @@ void Mesh::compute_triangle_normals (std::vector<glm::vec3> & triangle_normals, 
 
 
 
-void Mesh::computeNormalsWithAngles(){
-    std::vector<glm::vec3> nf;
-
-    normals.resize(nb_vertices);
-
-    glm::vec3 v1, v2, v3;
-    glm::vec3 v12;
-    glm::vec3 v13;
-    std::vector<unsigned int> f;
-
-    std::vector<float> nv;
-
-    // computing normals per faces
-    nf.resize(3*nb_faces);
-    for(unsigned int i=0;i<nb_faces;i++) {
-        f = get_face(i);
-
-        // the three vertices of the current face
-        v1 = get_vertex(f[0]);
-        v2 = get_vertex(f[1]);
-        v3 = get_vertex(f[2]);
-
-        // the two vectors of the current face
-        v12 = v2-v1;
-        v13 = v3-v1;
-
-        // cross product
-        nf[3*i] = glm::cross(v12, v13);
-        nf[3*i] = glm::normalize(nf[3*i]);
-    }
-
-    // computing normals per vertex
-    nv.resize(nb_vertices);
-    for(unsigned int i=0;i<nb_vertices;i++) {
-        // initialization
-        normals[i] = glm::vec3(0);
-        nv[i] = 0.0;
-    }
-
-    for(unsigned int i=0;i<nb_faces;i++) {
-        // face normals average
-        f = get_face(i);
-        //n = &(nf[3*i]);
-
-        normals[f[0]] += nf[3*i];
-        normals[f[1]] += nf[3*i];
-        normals[f[2]] += nf[3*i];
-        nv[f[0]] ++;
-        nv[f[1]] ++;
-        nv[f[2]] ++;
-
-    }
-
-    for(unsigned int i=0;i<nb_vertices;i++) {
-        // normalization
-        if(nv[i] != 0.0){
-            normals[i] /= -nv[i];
-        }
-        normals[i] = glm::normalize(normals[i]);
-    }
-
-
-}
-
-
-//////////////////// SMOOTHING VERTICES ///////////////////
-
-
-
-// calcul de la curvature uniform pour un sommet
-glm::vec3 vunicurvature(glm::vec3 vertex, std::vector<unsigned int> one_ring, const std::vector<glm::vec3> & vertices){
-
-    glm::vec3 curvature = glm::vec3(0.0);
-
-
-    for(unsigned int i=0; i<one_ring.size(); i++){
-        curvature += vertices[one_ring[i]];
-    }
-    if(one_ring.size() != 0){
-        curvature /= one_ring.size();
-    }
-    curvature -= vertex;
-
-
-
-    return curvature;
-}
-
-// calcul de la curvature pour le maillage
-std::vector<glm::vec3> calc_uniform_curvature(const std::vector<glm::vec3> & vertices, const std::vector<std::vector<unsigned int> > & triangles, std::vector<std::vector<unsigned int> > one_ring){
-
-
-
-    std::vector<glm::vec3> curvature = std::vector<glm::vec3>(vertices.size());
-
-    for(unsigned int i=0; i<vertices.size(); i++){
-
-        curvature[i] = vunicurvature(vertices[i], one_ring[i], vertices);
-
-    }
-
-    return curvature;
-}
-
-
-
-//////////////////
-//// QUESTION 2 //
-//////////////////
-
-
-// maximum de 3 valeurs
-float Mesh::max3v(float a, float b, float c){
-    if(a > b){
-        if(a > c){
-            return a;
-        } else {
-            return c;
-        }
-    } else {
-        if(b > c){
-            return b;
-        } else {
-            return c;
-        }
-    }
-}
-
-// cotangents calcul
-float Mesh::cot(float theta){
-    return cos(theta)/sin(theta);
-}
-
-
-// calcul de la qualité des triangles en fonction du plus petit angle
-float Mesh::calc_triangle_quality(const std::vector<glm::vec3> & vertices, std::vector<unsigned int> triangles){
-
-    assert(triangles.size() == 3);
-
-    glm::vec3 p1 = vertices[triangles[0]];
-    glm::vec3 p2 = vertices[triangles[1]];
-    glm::vec3 p3 = vertices[triangles[2]];
-
-    glm::vec3 a = p2-p1;
-    glm::vec3 b = p3-p1;
-    glm::vec3 c = p3-p2;
-
-    float r = (2*length(a)*length(b)*length(c))/(4*length(cross(a,b)));
-
-
-    float maxSide = max3v(length(a),length(b),length(c));
-
-    assert(maxSide != 0.0f);
-    return r/maxSide;
-}
-
-
-// calcul de la qualité du maillage
-std::vector<float> Mesh::calc_quality_mesh(const std::vector<glm::vec3> & vertices, const std::vector<std::vector<unsigned int> > & triangles){
-
-    std::vector<float> quality = std::vector<float>(triangles.size());
-
-    for(unsigned int i=0; i<triangles.size(); i++){
-        quality[i] = calc_triangle_quality(vertices, triangles[i]);
-    }
-
-    return quality;
-}
-
-
-
-// calcul des poids avec les cotangents
-float Mesh::calc_weights(const std::vector<glm::vec3> & vertices, std::vector<std::vector<unsigned int> > one_ring, unsigned int v, unsigned int vi){
-
-    // on récupère les deux sommets communs avec les deux sommets courants
-    std::vector<unsigned int> same_vertices = std::vector<unsigned int>();
-
-    for(unsigned int i=0; i<one_ring[v].size(); i++){
-        for(unsigned int j=0; j<one_ring[vi].size(); j++){
-            if(one_ring[v][i] == one_ring[vi][j]){
-                same_vertices.push_back(one_ring[vi][j]);
-            }
-        }
-    }
-
-    // si le il n'y a pas de voisins on renvoie 1
-    if(same_vertices.size() != 2){
-        //fprintf(stderr, "Error mesh invalid\n");
-        return 1;
-    }
-    assert(same_vertices.size() == 2);
-
-    // calcul des angles
-    unsigned int p0 = same_vertices[0];
-    unsigned int p1 = same_vertices[1];
-
-    float alpha = glm::dot(glm::normalize(vertices[v] - vertices[p0]), glm::normalize(vertices[vi] - vertices[p0]));
-    float beta = glm::dot(glm::normalize(vertices[v] - vertices[p1]), glm::normalize(vertices[vi] - vertices[p1]));
-
-    alpha = cos(alpha);
-    beta = cos(beta);
-
-    assert(alpha >= 0 && beta >= 0);
-
-    float ret = 0.5f*(cot(alpha)+cot(beta));
-
-    return ret;
-
-}
-
-
-// calcul la curvature pour tous les sommets
-std::vector<glm::vec3> Mesh::calc_mean_curvature (const std::vector<glm::vec3> & vertices, const std::vector<std::vector<unsigned int> > & triangles, std::vector<std::vector<unsigned int> > one_ring) {
-
-    std::vector<glm::vec3> curvature = std::vector<glm::vec3>(vertices.size());
-    glm::vec3 tmp;
-    float sum, w;
-
-    for(unsigned int i=0; i<vertices.size(); i++) { // pour chaque sommets
-
-        sum = 0;
-        tmp = glm::vec3(0);
-
-        // pour chacun de ses voisins
-        for(unsigned int j=0; j<one_ring[i].size(); j++){
-            // on calcul le poids avec les cotangents
-            w = calc_weights(vertices, one_ring, i, one_ring[i][j]);
-            tmp += w * (vertices[one_ring[i][j]] - vertices[i]);
-            sum += w;
-        }
-
-        // on moyenne
-        curvature[i] = tmp/sum;
-
-    }
-    return curvature;
-
-}
-
-
-
-
-
-// applique le smoothing un nombre "itération" fois
-std::vector<glm::vec3> Mesh::smoothing(const std::vector<glm::vec3> & meshvertices, const std::vector<std::vector<unsigned int> > & triangles,
-        std::vector<std::vector<unsigned int> > one_ring, unsigned int iterations, char type_smooth[],
-        std::vector<glm::vec3> & meshcurvature,std::vector<float> & qualityVertex){
-
-    std::vector<glm::vec3> changedVertices = meshvertices;
-    std::vector<glm::vec3> curvature;
-
-
-    // SMOOTHING
-    for(unsigned int i=0; i<iterations; i++){ // pour chaque itération
-
-        std::vector<glm::vec3> currentVertices = std::vector<glm::vec3>(meshvertices.size());
-
-        // on calcule la curvature en fonction du type de smoothing
-        if(strcmp(type_smooth, uniformSmoothingString) == 0){
-            curvature = calc_uniform_curvature(changedVertices, triangles, one_ring);
-        } else if(strcmp(type_smooth, laplaceSmoothingString) == 0){
-            curvature = calc_mean_curvature(changedVertices, triangles, one_ring);
-        } else {
-            return meshvertices;
-        }
-
-        // on met à jour les sommets
-        for(unsigned int j=0; j<changedVertices.size(); j++){
-            currentVertices[j] = changedVertices[j] + 0.5f * curvature[j];
-        }
-
-        changedVertices = currentVertices;
-
-    }
-
-    qualityVertex.resize(meshvertices.size());
-    qualityVertex = calc_quality_mesh(changedVertices, triangles);
-
-    meshcurvature = curvature;
-
-    return changedVertices;
-
-}
-
-
-
 
 
 ////////////////// COMPUTE TEXTURE COORDINATE ///////////////
@@ -625,26 +319,25 @@ void Mesh::computeUVCoord(){
     glm::vec3 c;
     float r;
 
-
     for(unsigned int i=0;i<nb_vertices;i++) {
-      v1 = get_vertex(i);
+        v1 = get_vertex(i);
 
-      // direction between center and current point
-      c = v1-center;
+        // direction between center and current point
+        c = v1-center;
 
-      // normalization
-      c = glm::normalize(c);
+        // normalization
+        c = glm::normalize(c);
 
-      glm::vec2 coord;
-      // elevation & azimuth remapped between 0 and 1
-      r = c.z/sqrt(c.x*c.x+c.z*c.z);
-      if(r>=1.0f) r = 1.0f;
-      if(r<=-1.0f) r = -1.0f;
-      coord.x = asin(r);
-      if(c.x<0.0) coord.x = M_PI-coord.x;
-      coord.x = (coord.x+(M_PI/2.0))/(2.0*M_PI);
-      coord.y = acos(c.y)/M_PI;
-      coords[i] = coord;
+        glm::vec2 coord;
+        // elevation & azimuth remapped between 0 and 1
+        r = c.z/sqrt(c.x*c.x+c.z*c.z);
+        if(r>=1.0f) r = 1.0f;
+        if(r<=-1.0f) r = -1.0f;
+        coord.x = asin(r);
+        if(c.x<0.0) coord.x = M_PI-coord.x;
+        coord.x = (coord.x+(M_PI/2.0))/(2.0*M_PI);
+        coord.y = acos(c.y)/M_PI;
+        coords[i] = coord;
     }
 }
 
@@ -748,37 +441,6 @@ glm::vec3 Mesh::getMax(){
 }
 
 
-///////// SIMPLIFICATION //////////
-
-
-void Mesh::drawDebug(glm::mat4 modelMat, glm::mat4 viewMat, glm::mat4 projectionMat){
-
-    glm::vec3 minGrid = getMin();
-    glm::vec3 maxGrid = getMax();
-
-    if(resolution <= 1){
-        drawGridForSimplification(minGrid, maxGrid,modelMat, viewMat, projectionMat);
-    } else {
-        glm::vec3 offset;
-        offset.x = (maxGrid.x - minGrid.x)/(float)resolution;
-        offset.y = (maxGrid.y - minGrid.y)/(float)resolution;
-        offset.z = ((maxGrid.z - minGrid.z)/(float)resolution);
-
-        for(int i=0; i<resolution; i++){
-            for(int j=0; j<resolution; j++){
-                for(int k=0; k<resolution; k++){
-                    // glm::vec3 start = glm::vec3(minGrid.)
-                    glm::vec3 mi = minGrid + glm::vec3(i*offset.x, j*offset.y, k*(offset.z));
-                    glm::vec3 ma = minGrid + glm::vec3((i+1)*offset.x, (j+1)*offset.y, (k+1)*(offset.z));
-
-                    drawGridForSimplification(mi, ma, modelMat, viewMat, projectionMat);
-                }
-            }
-        }
-    }
-
-
-}
 
 void Mesh::drawQuadWithTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 v4){
     glVertex3f(v1.x, v1.y, v1.z);
@@ -839,153 +501,7 @@ std::vector<int> indexToCell(int resolution, int index){
 
 }
 
-// modifie "vertices" et "faces"
-// simplification du maillage
-void Mesh::simplify(){
 
-    if(resolution < 1){
-        return;
-    }
-
-    computeBoundingBox();
-    inflateBoundingBox();
-
-    // pour avoir les bonnes normales même après modification
-    // computeNormals();
-
-    glm::vec3 minGrid = getMin();
-    glm::vec3 maxGrid = getMax();
-
-    glm::vec3 offset;
-    offset.x = (maxGrid.x - minGrid.x)/(float)resolution;
-    offset.y = (maxGrid.y - minGrid.y)/(float)resolution;
-    offset.z = ((maxGrid.z - minGrid.z)/(float)resolution);
-
-    std::vector<int> cell1, cell2, cell3;
-
-    // calcul du correspondant
-    std::vector<std::vector<glm::vec3>> listOfCell;
-    listOfCell.resize(resolution*resolution*resolution);
-
-    for(unsigned int i=0; i<backupVertices.size(); i++){
-        cell1 = indexOffCell(minGrid, offset, backupVertices[i]);
-        int index = cellToIndex(resolution, cell1[0], cell1[1], cell1[2]);
-        assert(index < resolution*resolution*resolution);
-        if(listOfCell[index].empty()){
-            listOfCell[index] = std::vector<glm::vec3>();
-        }
-        listOfCell[index].push_back(backupVertices[i]);
-        listOfCell[index].push_back(normals[i]);
-        listOfCell[index].push_back(glm::vec3(cell1[0], cell1[1], cell1[2]));
-    }
-
-    // debug
-    /*for(unsigned int i=0; i<listOfCell.size(); i++){
-        if(!listOfCell[i].empty()){
-            printf("cell : %i\n", i);
-            for(unsigned int j=0; j<listOfCell[i].size(); j+=3){
-                printf("pos : %f, %f, %f normal : %f, %f, %f\n", listOfCell[i][j].x, listOfCell[i][j].y ,listOfCell[i][j].z, listOfCell[i][j+1].x, listOfCell[i][j+1].y, listOfCell[i][j+1].z);
-            }
-            printf("\n\n\n");
-        }
-    }*/
-
-
-    // calcul moyenne
-    unsigned int newIndex = 0;
-    for(unsigned int i=0; i<listOfCell.size(); i++){
-        if(!listOfCell[i].empty()){
-            glm::vec3 pos = glm::vec3(0);
-            glm::vec3 norm = glm::vec3(0);
-
-            for(unsigned int j=0; j<listOfCell[i].size(); j+=3){
-                pos += listOfCell[i][j];
-                norm += listOfCell[i][j+1];
-            }
-
-            pos /= listOfCell[i].size()/3;
-            norm /= listOfCell[i].size()/3;
-            norm = glm::normalize(norm);
-            listOfCell[i] = std::vector<glm::vec3>();
-            listOfCell[i].push_back(pos);
-            listOfCell[i].push_back(norm);
-            listOfCell[i].push_back(glm::vec3((float)newIndex));
-
-            newIndex++;
-        }
-    }
-
-
-    /// SUPPRESSION DES TRIANGLES ////
-
-    std::vector<unsigned int> newTriangles = std::vector<unsigned int>();
-
-    unsigned int i1, i2, i3;
-    for(unsigned int i=0; i<backupFaces.size(); i+=3){ // pour chaque triangles
-        cell1 = indexOffCell(minGrid, offset, backupVertices[backupFaces[i]]);
-        cell2 = indexOffCell(minGrid, offset, backupVertices[backupFaces[i+1]]);
-        cell3 = indexOffCell(minGrid, offset, backupVertices[backupFaces[i+2]]);
-
-        if(cell1 == cell2 || cell2 == cell3 || cell3 == cell1){
-            // le triangle est supprimé
-        } else {
-            /// pas très propre
-            assert(listOfCell[cellToIndex(resolution, cell1[0], cell1[1], cell1[2])].size() == 3);
-            i1 = (unsigned int)listOfCell[cellToIndex(resolution, cell1[0], cell1[1], cell1[2])][2].x;
-            assert(listOfCell[cellToIndex(resolution, cell2[0], cell2[1], cell2[2])].size() == 3);
-            i2 = (unsigned int)listOfCell[cellToIndex(resolution, cell2[0], cell2[1], cell2[2])][2].x;
-            assert(listOfCell[cellToIndex(resolution, cell3[0], cell3[1], cell3[2])].size() == 3);
-            i3 = (unsigned int)listOfCell[cellToIndex(resolution, cell3[0], cell3[1], cell3[2])][2].x;
-            newTriangles.push_back(i1);
-            newTriangles.push_back(i2);
-            newTriangles.push_back(i3);
-        }
-    }
-
-    // creation des tableau de postion et normales des sommets
-    std::vector<glm::vec3> newVertices = std::vector<glm::vec3>();
-    std::vector<glm::vec3> newNormals = std::vector<glm::vec3>();
-
-    for(unsigned int i=0; i<listOfCell.size(); i++){
-        if(!listOfCell[i].empty()){
-            assert(listOfCell[i].size() == 3);
-            newVertices.push_back(listOfCell[i][0]);
-            newNormals.push_back(listOfCell[i][1]);
-        }
-    }
-
-    vertices = newVertices;
-    normals = newNormals;
-    faces = newTriangles;
-
-    nb_vertices = vertices.size();
-    nb_faces = faces.size()/3;
-
-    computeAllInfoWithoutNormals();
-/*
-    for(unsigned int i=0; i<faces.size(); i+=3){ // pour chaque triangles
-        cell1 = indexOffCell(minGrid, offset, vertices[faces[i]]);
-        cell2 = indexOffCell(minGrid, offset, vertices[faces[i+1]]);
-        cell3 = indexOffCell(minGrid, offset, vertices[faces[i+2]]);
-    }
-*/
-
-}
-
-
-// renvoie dans quelle cellule le sommet se trouve
-std::vector<int> Mesh::indexOffCell(glm::vec3 start, glm::vec3 offset, glm::vec3 vertex){
-    std::vector<int> indexCell;
-    indexCell.resize(3);
-
-    glm::vec3 distanceFromStart = vertex - start;
-
-    indexCell[0] = distanceFromStart.x / offset.x;
-    indexCell[1] = distanceFromStart.y / offset.y;
-    indexCell[2] = distanceFromStart.z / offset.z;
-
-    return indexCell;
-}
 
 void Mesh::createVAO(){
 
