@@ -1044,9 +1044,9 @@ std::vector<int> Mesh::indexOffCell(glm::vec3 start, glm::vec3 offset, glm::vec3
 
 void Mesh::createVAO(){
 
-    buffers = new GLuint[4];
+    buffers = new GLuint[5];
 
-    glGenBuffers(4, buffers);
+    glGenBuffers(5, buffers);
     glGenVertexArrays(1,&vertexArrayID);
 
     // create the VBO associated with the grid (the terrain)
@@ -1072,12 +1072,18 @@ void Mesh::createVAO(){
     glBindBuffer(GL_ARRAY_BUFFER, buffers[3]);
     glBufferData(GL_ARRAY_BUFFER, getNBVertices()*2* sizeof(float), getUVs(), GL_STATIC_DRAW); //normals is std::vector<float>
     glVertexAttribPointer(VERTEX_UV_ATTRIB, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+    /* colors */
+    glEnableVertexAttribArray(VERTEX_UV_ATTRIB);
+    glBindBuffer(GL_ARRAY_BUFFER, buffers[4]);
+    glBufferData(GL_ARRAY_BUFFER, getNBVertices()*3* sizeof(float), getColors(), GL_STATIC_DRAW); //normals is std::vector<float>
+    glVertexAttribPointer(VERTEX_COLOR_ATTRIB, 3, GL_FLOAT, GL_FALSE, 0, 0);
     //indices
     glBindVertexArray(0);
 }
 
 void Mesh::deleteVAO(){
-    glDeleteBuffers(4,buffers);
+    glDeleteBuffers(5,buffers);
     glDeleteVertexArrays(1,&vertexArrayID);
     delete buffers;
 }
