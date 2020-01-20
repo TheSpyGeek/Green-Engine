@@ -52,6 +52,7 @@ public:
 
      void deleteVAO();
 
+     inline void *getFaces(){ return &(m_faces[0]);}
      inline void *getVertices(){ return &(m_vertices[0]);}
      inline void *getNormals(){ return &(m_normals[0]);}
      inline void *getUVs(){ return &(m_coords[0]);}
@@ -112,7 +113,7 @@ protected:
      void inflateBoundingBox();
 
      GLuint m_vertexArrayID = 0;
-     std::array<GLuint, 4> m_buffers;
+     std::array<GLuint, 5> m_buffers;
 
 
 };

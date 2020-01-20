@@ -12,10 +12,12 @@
 MeshLoaderOFF::MeshLoaderOFF(char *filename) {
     setName("Mesh Loader OFF");
 
-     sprintf(m_filename, "%s", filename);
+    sprintf(m_filename, "%s", filename);
     readOFFfile(filename);
 
     computeAllInfo();
+
+    createVAO();
 }
 
 

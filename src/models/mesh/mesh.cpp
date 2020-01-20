@@ -130,8 +130,6 @@ void Mesh::createVAO(){
     glVertexAttribPointer(POSITION_ATTRIB,3,GL_FLOAT,GL_FALSE,0,(void *)0);
 
 
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,m_buffers[1]); // indices
-    // glBufferData(GL_ELEMENT_ARRAY_BUFFER,mesh->getNBFaces()*3*sizeof(unsigned int),mesh->getFaces(),GL_STATIC_DRAW);
 
     // m_normals
     glEnableVertexAttribArray(VERTEX_NORMAL_ATTRIB);
@@ -151,6 +149,8 @@ void Mesh::createVAO(){
     glBufferData(GL_ARRAY_BUFFER, getNBVertices()*3* sizeof(float), getColors(), GL_STATIC_DRAW); //m_normals is std::vector<float>
     glVertexAttribPointer(VERTEX_COLOR_ATTRIB, 3, GL_FLOAT, GL_FALSE, 0, 0);
     
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,m_buffers[4]); // indices
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,getNBFaces()*3*sizeof(unsigned int),getFaces(),GL_STATIC_DRAW);
 
     glBindVertexArray(0);
 }
@@ -159,7 +159,8 @@ void Mesh::createVAO(){
 void Mesh::drawVAO(){
 
     glBindVertexArray(m_vertexArrayID);
-    glDrawArrays(GL_TRIANGLES,0,getNBVertices());
+    // glDrawArrays(GL_TRIANGLES,0,getNBVertices());
+    glDrawElements(GL_TRIANGLES,3*getNBFaces(),GL_UNSIGNED_INT,(void *)0);
     glBindVertexArray(0);
 
 }
