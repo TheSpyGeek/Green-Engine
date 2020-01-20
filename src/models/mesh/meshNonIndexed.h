@@ -1,6 +1,5 @@
-#ifndef MESHCUBE_H
-#define MESHCUBE_H
-
+#ifndef MESHNONINDEXED_H
+#define MESHNONINDEXED_H
 
 #if defined(IMGUI_IMPL_OPENGL_LOADER_GL3W)
 #include <GL/gl3w.h>    // Initialize with gl3wInit()
@@ -21,36 +20,17 @@
 #include <glm/gtc/matrix_inverse.hpp>
 #endif
 
-#include "meshNonIndexed.h"
+#include "mesh.h"
 
-class MeshCube : public MeshNonIndexed {
+class MeshNonIndexed : public Mesh {
 
 public:
-
-    MeshCube(float w = 1.0f, bool center = true);
-    
-	void recreate();
-	void createUI();
-    
-    float getVoxelSize(){return m_width;}
-
-private:
-
-	void createMesh(float w);
-    void createPositions(float w);
-
-    void createNormals();
-    void createm_tangents();
-    void createUVs();
-    void createColors();
-
-    float m_width;
-    bool m_centered;
-
-    
-
+    virtual void createVAO() override;
+    virtual void drawVAO() override;
+    virtual void deleteVAO() override;
+protected:
+    std::array<GLuint, 4> m_buffersNonIndexed;
 
 };
-
 
 #endif
