@@ -17,8 +17,8 @@
 
 #include <imgui.h>
 
-#include "colliders/collider.h"
-#include "terrainModificator.h"
+//#include "colliders/collider.h"
+//#include "terrainModificator.h"
 
 
 Projectile::Projectile(int radius) : m_radiusOfExplosion(radius){
@@ -31,7 +31,7 @@ Projectile::~Projectile(){
 }
 
 void Projectile::update(){
-    Collider* collider = m_gameobject->getComponent<Collider*>();
+   /*Collider* collider = m_gameobject->getComponent<Collider*>();
     TerrainModificator* terainModif = m_gameobject->getComponent<TerrainModificator*>();
     if(collider == nullptr || terainModif == nullptr){
         return;
@@ -41,14 +41,14 @@ void Projectile::update(){
         terainModif->destroy(m_radiusOfExplosion);
         assert(m_scene != nullptr);
         m_scene->addToDestroy(m_gameobject->getID());
-    }
+    }*/
 }
 
 void Projectile::createUI(){
-    Collider* collider = m_gameobject->getComponent<Collider*>();
+    /*Collider* collider = m_gameobject->getComponent<Collider*>();
     if(collider != nullptr){
         ImGui::Text("Is in collision : %s", collider->isInCollision() ? "true" : "false");
-    }
+    }*/
     ImGui::Text("Radius of explosion : ");
     ImGui::DragInt("##radius", &m_radiusOfExplosion, 1, 1, 100);
 }

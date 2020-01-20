@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "colliders/collider.h"
+//#include "colliders/collider.h"
 
 #ifndef M_PI
 #define M_PI 3.1415926
@@ -59,11 +59,11 @@ void Rigidbody::computeGravity() {
 
         m_vectorMove.y -= m_mass*m_gameobject->getTransform()->getScale().y;
 
-        Collider* collider = m_gameobject->getComponent<Collider*>();
+        /*Collider* collider = m_gameobject->getComponent<Collider*>();
         if(collider != nullptr && collider->getActive()){
             if(collider->isGrounded() && m_vectorMove.y < 0){
                 m_vectorMove.y = 0.0f;
             }
-        }
+        }*/
     }
 }

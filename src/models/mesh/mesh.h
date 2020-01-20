@@ -1,10 +1,6 @@
-
 #ifndef MESH_H
 #define MESH_H
 
-#include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
 #if defined(IMGUI_IMPL_OPENGL_LOADER_GL3W)
 #include <GL/gl3w.h>    // Initialize with gl3wInit()
 #elif defined(IMGUI_IMPL_OPENGL_LOADER_GLEW)
@@ -26,109 +22,155 @@
 
 #include <string>
 #include <vector>
-#include <array>
-#include <cstdio>
-#include <iostream>
+#include <stdio.h>
 
 #include "../../components/component.h"
+
+#define POSITION_ATTRIB 0
+#define VERTEX_NORMAL_ATTRIB 1
+#define VERTEX_UV_ATTRIB 2
 
 
 class Mesh : public Component {
 
 public:
 
-     Mesh();
-     virtual ~Mesh();
+     virtual ~Mesh() = default;
+
+     void *getVertices();
+     void *getFaces();
+     void *getNormals();
+     void *getUVs();
+
+     unsigned int getNBVertices();
+     unsigned int getNBFaces();
 
      virtual void createUI();
-     virtual void recreate();
+     //virtual void recreate() = 0;
+
+     glm::vec3 getCenter();
 
      glm::vec3 getMin();
      glm::vec3 getMax();
 
+
+      // DEBUG
+      void drawDebug(glm::mat4 modelMat, glm::mat4 viewMat, glm::mat4 projectionMat);
+      void drawGridForSimplification(glm::vec3 minimum, glm::vec3 maximum, glm::mat4 modelMat, glm::mat4 viewMat, glm::mat4 projectionMat);
+
+
+     void simplify();
+
+     virtual void update();
+
      void createVAO();
-
      void drawVAO();
-
      void deleteVAO();
 
-     inline void *getFaces(){ return &(m_faces[0]);}
-     inline void *getVertices(){ return &(m_vertices[0]);}
-     inline void *getNormals(){ return &(m_normals[0]);}
-     inline void *getUVs(){ return &(m_coords[0]);}
-     inline void *getColors(){ return &(m_colors[0]);}
-
-     inline unsigned int getNBVertices(){ return m_vertices.size();}
-
-     inline unsigned int getNBFaces(){ return getNBVertices()/3; }
-
-     std::vector<unsigned int> get_face(unsigned int i);
-     inline glm::vec3 get_vertex(unsigned int i) { return m_vertices[i];}
-     inline glm::vec3 get_normal(unsigned int i) { return m_normals[i];}
-     inline glm::vec3 get_color(unsigned int i) { return m_colors[i];}
-     inline glm::vec2 get_coord(unsigned int i) { return m_coords[i];}
-
-     inline glm::vec3 get_tangent(unsigned int i) { return m_tangents[i];}
-
-     // -- Modificators --
-     
-     void addTriangle(const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& v3,
-                      const glm::vec3& normal, const glm::vec3& color);
-
-     void addQuad    (const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& v3, const glm::vec3& v4,
-                      const glm::vec3& normal, const glm::vec3& color);
-
-     void clear();
-
-     static void displayArrayImGui(char node[56], std::vector<glm::vec3> array);
-
 protected:
+     std::vector<unsigned int> get_face(unsigned int i);
+     glm::vec3        get_vertex(unsigned int i);
+     glm::vec3        get_normal(unsigned int i);
+     glm::vec3        get_tangent(unsigned int i);
+     glm::vec2        get_coord(unsigned int i);
+     glm::vec3        get_color(unsigned int i);
 
-     float m_maxX, m_maxY, m_maxZ;
-     float m_minX, m_minY, m_minZ;
+     unsigned int  nb_vertices;
+     unsigned int  nb_faces;
+
+     float maxX, maxY, maxZ;
+     float minX, minY, minZ;
 
      // data
-     std::vector<unsigned int> m_faces;
-     std::vector<glm::vec3> m_vertices;
-     std::vector<glm::vec3> m_normals;
-     std::vector<glm::vec3> m_colors;
+     std::vector<glm::vec3> vertices;
+     std::vector<glm::vec3> normals;
+     std::vector<glm::vec3> tangents;
+     std::vector<glm::vec3> colors;
+     std::vector<glm::vec2> coords;
+     std::vector<unsigned int> faces;
 
-     std::vector<glm::vec2> m_coords; // ne sert pas pour l'instant
+     std::vector<glm::vec3> backupVertices;
+     std::vector<unsigned int> backupFaces;
 
-     std::vector<glm::vec3> m_tangents;
-     std::vector<glm::vec3> m_backupVertices;
+     // voisinage
+     std::vector<std::vector<unsigned int>> oneRing;
+     // degree de chaque sommet
+     std::vector<int> valences;
 
-   
-     float          m_radius;
-     glm::vec3 m_center;
+     std::vector<glm::vec3> curvature;
+     std::vector<float> trianglesQuality;
 
-     void computeAllInfo();
-     void computeNormals();
-     void computeUVCoord();
+     // info
+     glm::vec3      center;
+     float          radius;
+
+     void initialize();
+
      void computeTangents();
      void computeCenter();
      void computeRadius();
+     void computeUVCoord();
      void computeColor();
+     void computeBoundingBox();
+     void inflateBoundingBox();
 
+     void computeAllInfo();
+
+
+
+     /// COMPUTE VALENCE + ONE RING
+
+     int maxValue(std::vector<int> vec);
      void compute_vertex_valences (std::vector<int> & valences, std::vector<std::vector<unsigned int>> one_ring, std::vector<std::vector<unsigned int> > triangles);
-     void collect_one_ring (std::vector<std::vector<unsigned int> > & one_ring, std::vector<std::vector<unsigned int> > triangles, unsigned int nbVertices);
      bool alreadyExist(unsigned int num, std::vector<unsigned int> vec);
+     void collect_one_ring (std::vector<std::vector<unsigned int> > & one_ring, std::vector<std::vector<unsigned int> > triangles, unsigned int nbVertices);
 
+     ///// COMPUTE NORMALES
+
+     void computeNormals();
      void computeSmoothNormals();
+     void computeNormalsWithAngles();
      void compute_triangle_normals(std::vector<glm::vec3> & triangle_normals, std::vector<std::vector<unsigned int> > triangles, std::vector<glm::vec3> indexed_vertices);
      glm::vec3 computeNormalOfOneTriangle(std::vector<unsigned int> triangle, std::vector<glm::vec3> indexed_vertices);
 
 
-     std::vector<std::vector<unsigned int>> m_oneRing;
-     // degree de chaque sommet
-     std::vector<int> m_valences;
+     const char uniformSmoothingString[1024] = "Uniform";
+     const char laplaceSmoothingString[1024] = "Bel Trami";
 
-     void computeBoundingBox();
-     void inflateBoundingBox();
 
-     GLuint m_vertexArrayID = 0;
-     std::array<GLuint, 5> m_buffers;
+     char type_smoothing[1024] = "Uniform";
+    bool smoothNormals = false;
 
+
+
+     /////// SMOOTHING VERTICES ///////
+
+     int nbSmoothingIteration = 0;
+
+
+     std::vector<glm::vec3> smoothing(const std::vector<glm::vec3> & meshvertices, const std::vector<std::vector<unsigned int> > & triangles,
+        std::vector<std::vector<unsigned int> > one_ring, unsigned int iterations, char type_smooth[],
+        std::vector<glm::vec3> & meshcurvature,std::vector<float> & qualityVertex);
+
+     std::vector<glm::vec3> calc_mean_curvature (const std::vector<glm::vec3> & vertices, const std::vector<std::vector<unsigned int>> & triangles, std::vector<std::vector<unsigned int>> one_ring);
+     float calc_weights(const std::vector<glm::vec3> & vertices, std::vector<std::vector<unsigned int> > one_ring, unsigned int v, unsigned int vi);
+
+     std::vector<float> calc_quality_mesh(const std::vector<glm::vec3> & vertices, const std::vector<std::vector<unsigned int> > & triangles);
+     float calc_triangle_quality(const std::vector<glm::vec3> & vertices, std::vector<unsigned int> triangles);
+     float max3v(float a, float b, float c);
+     float cot(float theta);
+
+
+     /// SIMPLIFICATION /////
+     int resolution = 1;
+
+     // renvoie dans quelle cellule le sommet se trouve
+     std::vector<int> indexOffCell(glm::vec3 start, glm::vec3 offset, glm::vec3 vertex);
+     void computeAllInfoWithoutNormals();
+     void drawQuadWithTriangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 v4);
+
+     GLuint *buffers;
+     GLuint vertexArrayID;
 
 };
 

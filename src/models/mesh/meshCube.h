@@ -11,7 +11,7 @@
 #endif
 
 #include "mesh.h"
-
+/*
 class MeshCube : public Mesh {
 
 public:
@@ -37,6 +37,6 @@ private:
     bool m_centered;
 
 };
-
+*/
 
 #endif

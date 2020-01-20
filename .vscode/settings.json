@@ -44,6 +44,15 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "cinttypes": "cpp",
-        "typeinfo": "cpp"
-    }
+        "typeinfo": "cpp",
+        "xthread": "cpp",
+        "chrono": "cpp",
+        "map": "cpp",
+        "numeric": "cpp",
+        "random": "cpp",
+        "ratio": "cpp",
+        "thread": "cpp"
+    },
+    "cmake.configureOnOpen": true,
+    "C_Cpp.default.configurationProvider": "vector-of-bool.cmake-tools"
 }

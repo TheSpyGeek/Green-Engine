@@ -73,9 +73,12 @@ void MeshLoaderOFF::readOFFfile(char *filename){
       printf("Unable to read %s\n",filename);
     }
 
+    nb_vertices = nbVertices;
+    nb_faces = nbFaces;
 
-    m_vertices.resize(nbVertices);
-    m_faces.resize(nbFaces*3);
+
+    vertices.resize(nbVertices);
+    faces.resize(nbFaces*3);
 
     glm::vec3 vertex = glm::vec3(0);
 
@@ -88,14 +91,14 @@ void MeshLoaderOFF::readOFFfile(char *filename){
         // MeshLoader_delete(MeshLoader);
         // return NULL;
         }
-        m_vertices[i] = vertex;
+        vertices[i] = vertex;
     }
 
 
     // reading faces
     j = 0;
     for(i=0;i<getNBFaces();i++) {
-        error = fscanf(file,"%d %d %d %d\n",&tmp,&(m_faces[j]),&(m_faces[j+1]),&(m_faces[j+2]));
+        error = fscanf(file,"%d %d %d %d\n",&tmp,&(faces[j]),&(faces[j+1]),&(faces[j+2]));
         if(error==EOF) {
             printf("Unable to read faces of %s\n",filename);
         }
@@ -114,8 +117,8 @@ void MeshLoaderOFF::createUI(){
     ImGui::InputText("##fileMeshLoader", m_filename, IM_ARRAYSIZE(m_filename));
     // this->Mesh::createUI();
 
-    ImGui::Text("Nombre de normals: %u", m_normals.size());
-    displayArrayImGui("Normals", m_normals);
+    ImGui::Text("Nombre de normals: %u", normals.size());
+    //isplayArrayImGui("Normals", m_normals);
 
 }
 

@@ -10,7 +10,7 @@
 #endif
 
 #include <imgui.h>
-#include "colliders/collider.h"
+//#include "colliders/collider.h"
 #include "rigidbody.h"
 
 #ifndef M_PI
@@ -45,12 +45,12 @@ void PlayerController::inputUpdate() {
         input.x = 1.0f;
     }
     if(ImGui::IsKeyPressed(' ')) { // barre espace
-        Collider* collider = m_gameobject->getComponent<Collider*>();
+        /*Collider* collider = m_gameobject->getComponent<Collider*>();
         if(collider != nullptr && collider->getActive()){
             if(collider->isGrounded()){
                 input.y = 1.0f;
             }
-        }
+        }*/
     }
 
     glm::vec3 pos = m_gameobject->getTransform()->getPosition();

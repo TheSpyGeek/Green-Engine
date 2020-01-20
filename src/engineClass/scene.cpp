@@ -23,18 +23,18 @@
 #include "../components/component.h"
 // #include "../components/chunkRenderer.h"
 #include "../components/axisRenderer.h"
-#include "../terrain/terrainManager.h"
+// #include "../terrain/terrainManager.h"
 
 #include "../components/rigidbody.h"
 #include "../components/cameraProjective.h"
 #include "../components/cameraRenderer.h"
 #include "../components/cameraFollow.h"
 #include "../components/thirdPersonController.h"
-#include "../components/groundFollow.h"
-#include "../components/fireProjectiles.h"
+// #include "../components/groundFollow.h"
+// #include "../components/fireProjectiles.h"
 #include "../components/debug/debugTransform.h"
-#include "../components/colliders/collider.h"
-#include "../components/terrainModificator.h"
+// #include "../components/colliders/collider.h"
+// #include "../components/terrainModificator.h"
 #include "../components/playerController.h"
 
 #include <thread>
@@ -166,7 +166,7 @@ void Scene::addGameObject(GameObject *obj){
 void Scene::addCube(){
     GameObject *cube = new GameObject(addNewId(), "Cube");
 
-    cube->addComponent<Mesh*>(new MeshCube());
+    // cube->addComponent<Mesh*>(new MeshCube());
     cube->addComponent<Material*>(new Lambertian());
     cube->addComponent<MeshRenderer*>(new MeshRenderer());
  
@@ -268,19 +268,19 @@ void Scene::loadExplorationScene(){
     m_pause = false;
 
     GameObject *player = new GameObject(addNewId(), "Player", new Transform(glm::vec3(2.8f,15.0f,33.7f)));
-    player->addComponent<Mesh*>(new MeshCube(0.5f));
+    // player->addComponent<Mesh*>(new MeshCube(0.5f));
     player->addComponent<Material*>(new Lambertian());
     player->addComponent<MeshRenderer*>(new MeshRenderer());
     player->addComponent<Rigidbody*>(new Rigidbody(2.0f));
     player->getComponent<Rigidbody*>()->setUseGravity(false);
     player->addComponent<PlayerController*>(new PlayerController());
     player->addComponent<ThirdPersonController*>(new ThirdPersonController());
-    player->addComponent<GroundFollow*>(new GroundFollow());
-    player->addComponent<TerrainModificator*>(new TerrainModificator());
+    // player->addComponent<GroundFollow*>(new GroundFollow());
+    // player->addComponent<TerrainModificator*>(new TerrainModificator());
     objectsEngine.push_back(player);
 
     GameObject *terrain = new GameObject(addNewId(), "Terrain");
-    terrain->addComponent<TerrainManager*>(new TerrainManager(32, 4, player->getTransform()));
+    // terrain->addComponent<TerrainManager*>(new TerrainManager(32, 4, player->getTransform()));
     objectsEngine.push_back(terrain);
 
     GameObject *camera = new GameObject(addNewId(), "Camera", new Transform(glm::vec3(0,164, 0), glm::vec3(M_PI / 2 - 0.3, M_PI, 0)));
@@ -291,8 +291,8 @@ void Scene::loadExplorationScene(){
 
     player->getComponent<ThirdPersonController*>()->setCamera(camera);
     // player->getComponent<ThirdPersonController*>()->setActive(false);
-    player->getComponent<GroundFollow*>()->setTerrain(terrain->getComponent<TerrainManager*>());
-	player->getComponent<TerrainModificator*>()->setTerrain(terrain->getComponent<TerrainManager*>());
+    // player->getComponent<GroundFollow*>()->setTerrain(terrain->getComponent<TerrainManager*>());
+	// player->getComponent<TerrainModificator*>()->setTerrain(terrain->getComponent<TerrainManager*>());
 
     
     objectsEngine.push_back(camera);
@@ -303,26 +303,26 @@ void Scene::loadGameplayScene(){
     loadDefaultScene();
 
     GameObject *player = new GameObject(addNewId(), "Player", new Transform(glm::vec3(2.8f,15.0f,33.7f)));
-    player->addComponent<Mesh*>(new MeshCube(0.5f));
+    // player->addComponent<Mesh*>(new MeshCube(0.5f));
     player->addComponent<Material*>(new Lambertian());
     player->addComponent<MeshRenderer*>(new MeshRenderer());
     player->addComponent<Rigidbody*>(new Rigidbody());
     player->getComponent<Rigidbody*>()->setUseGravity(true);
     player->addComponent<ThirdPersonController*>(new ThirdPersonController());
-    player->addComponent<FireProjectiles*>(new FireProjectiles()); // ça fait rammer mon pc à mort ! O_o
-    player->getComponent<FireProjectiles*>()->setScene(this);
+    // player->addComponent<FireProjectiles*>(new FireProjectiles()); // ça fait rammer mon pc à mort ! O_o
+    // player->getComponent<FireProjectiles*>()->setScene(this);
     // player->getComponent<FireProjectiles*>()->setActive(false);
-    player->addComponent<Collider*>(new Collider(glm::vec3(0.5, 0.6,0.5)));
+    // player->addComponent<Collider*>(new Collider(glm::vec3(0.5, 0.6,0.5)));
     player->addComponent<PlayerController*>(new PlayerController());
     objectsEngine.push_back(player);
 
     GameObject *terrain = new GameObject(addNewId(), "Terrain");
-    terrain->addComponent<TerrainManager*>(new TerrainManager(32, 5, player->getTransform()));
+    // terrain->addComponent<TerrainManager*>(new TerrainManager(32, 5, player->getTransform()));
     objectsEngine.push_back(terrain);
   
 
-    player->getComponent<Collider*>()->setTerrain(terrain->getComponent<TerrainManager*>());
-    player->getComponent<FireProjectiles*>()->setTerrain(terrain->getComponent<TerrainManager*>());
+    // player->getComponent<Collider*>()->setTerrain(terrain->getComponent<TerrainManager*>());
+    // player->getComponent<FireProjectiles*>()->setTerrain(terrain->getComponent<TerrainManager*>());
     
 
     GameObject *camera = new GameObject(addNewId(), "Camera", new Transform(glm::vec3(0,164, 0), glm::vec3(M_PI / 2 - 0.3, M_PI, 0)));
@@ -350,7 +350,7 @@ void Scene::loadSampleScene(){
 
     GameObject *obj = new GameObject(addNewId(), "Objet");
     obj->addComponent<Material*>(new Lambertian());
-    obj->addComponent<MeshLoaderOFF*>(new MeshLoaderOFF("../data/models/icosa.off"));
+    obj->addComponent<Mesh*>(new MeshLoaderOFF("../data/models/icosa.off"));
     obj->addComponent<MeshRenderer*>(new MeshRenderer());
     objectsEngine.push_back(obj);
 }
