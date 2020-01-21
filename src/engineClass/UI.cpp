@@ -41,15 +41,15 @@ void UI::drawUI(){
         createUISceneManager(m_scene);
     }
 
-    if(m_mainRenderer != nullptr){
+    if(m_showMainRenderer && m_mainRenderer != nullptr){
         m_mainRenderer->createUI();
     }
 
-    if(m_inputManager != nullptr){
+    if(m_showInputManager && m_inputManager != nullptr){
         m_inputManager->createUI();
     }
 
-    if(m_mainRenderer != nullptr){
+    if(m_showMode && m_mainRenderer != nullptr){
         ImGui::Begin("Engine mode");
         ImGui::Text("%s", m_mainRenderer->getPlayMode() ? "Play mode" : "Editor mode");
         ImGui::End();
@@ -69,13 +69,15 @@ void UI::drawUI(){
         ImGui::End();
     }
 
-    ImGui::Begin("Controls");
-    ImGui::Text("CTRL+U: switch with play/editor Mode");
-    ImGui::Text("CTRL+F: toggle wire frame");
-    ImGui::Text("CTRL+P: pause/unpause");
-    ImGui::Text("CTRL+G: active/disable camera player");
-    ImGui::Text("CTRL+H: show/hide HUD");
-    ImGui::End();
+    if(m_showControls){
+        ImGui::Begin("Controls");
+        ImGui::Text("CTRL+U: switch with play/editor Mode");
+        ImGui::Text("CTRL+F: toggle wire frame");
+        ImGui::Text("CTRL+P: pause/unpause");
+        ImGui::Text("CTRL+G: active/disable camera player");
+        ImGui::Text("CTRL+H: show/hide HUD");
+        ImGui::End();
+    }
    
 }
 
@@ -170,6 +172,11 @@ void UI::createUISceneManager(Scene *scene){
         if (ImGui::BeginMenu("View")){
             if (ImGui::MenuItem("Toggle wire frame","CTRL+F")) { if(m_mainRenderer != NULL) m_mainRenderer->toggleWire(); }
             if (ImGui::MenuItem("Toggle grid")) { if(m_mainRenderer != NULL) m_mainRenderer->toggleGrid(); }
+            ImGui::Separator();
+            if (ImGui::MenuItem("Show/Hide controls")){m_showControls = !m_showControls;}
+            if (ImGui::MenuItem("Show/Hide input Manager settings")){m_showInputManager = !m_showInputManager;}
+            if (ImGui::MenuItem("Show/Hide engine mode")){m_showMode = !m_showMode;}
+            if (ImGui::MenuItem("Show/Hide Main Renderer settings")){m_showMainRenderer = !m_showMainRenderer;}
             ImGui::EndMenu();
         }
 

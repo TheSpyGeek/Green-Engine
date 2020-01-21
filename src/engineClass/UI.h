@@ -57,6 +57,8 @@ private:
 
     ImFont* m_pFont;
 
+    bool m_showInputManager = false, m_showControls = false, m_showMode = false, m_showMainRenderer = false;
+
 };
 
 #endif
