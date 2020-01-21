@@ -110,14 +110,12 @@ void UI::displayEngineNode(std::vector<GameObject*> obj){
             }
             if (ImGui::BeginDragDropSource()) {
                 ImGui::SetDragDropPayload("GameObject", &id, sizeof(int));
-                ImGui::Text("Dragging from %d", id);
                 m_idToMove = id;
                 ImGui::EndDragDropSource();
             }
 
             if (ImGui::BeginDragDropTarget()) {
                 if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GameObject")){
-                    ImGui::Text("Target id %d", id);
                     m_moveTo = id;
                     if(m_moveTo != m_idToMove){
                         updateScene = true;
@@ -125,6 +123,11 @@ void UI::displayEngineNode(std::vector<GameObject*> obj){
                 }
                 ImGui::EndDragDropTarget();
             }
+
+            // if(ImGui::IsMouseReleased(0) && m_idToMove != -1 && m_moveTo == -1){
+            //     updateScene = true;
+            // }
+
 
             ImGui::SameLine();
             ImGui::Text(obj[i]->getName().c_str());
@@ -142,14 +145,12 @@ void UI::displayEngineNode(std::vector<GameObject*> obj){
 
             if (ImGui::BeginDragDropSource()) {
                 ImGui::SetDragDropPayload("GameObject", &id, sizeof(int));
-                ImGui::Text("Dragging from %d", id);
                 m_idToMove = id;
                 ImGui::EndDragDropSource();
             }
 
             if (ImGui::BeginDragDropTarget()) {
                 if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GameObject")){
-                    ImGui::Text("Target id %d", id);
                     m_moveTo = id;
                     if(m_moveTo != m_idToMove){
                         updateScene = true;
@@ -158,9 +159,9 @@ void UI::displayEngineNode(std::vector<GameObject*> obj){
                 ImGui::EndDragDropTarget();
             }
 
-            if(ImGui::IsMouseReleased(0) && m_idToMove != -1 && m_moveTo == -1){
-                updateScene = true;
-            }
+            // if(ImGui::IsMouseReleased(0) && m_idToMove != -1 && m_moveTo == -1){
+            //     updateScene = true;
+            // }
 
             ImGui::SameLine();
             ImGui::Text(obj[i]->getName().c_str());
@@ -183,6 +184,7 @@ void UI::displayEngineNode(std::vector<GameObject*> obj){
         moveObjTo(m_idToMove, m_moveTo);
         m_moveTo = -1;
         m_idToMove = -1;
+        updateScene = false;
     }
 
 }

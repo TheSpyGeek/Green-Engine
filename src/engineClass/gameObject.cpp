@@ -128,7 +128,7 @@ void GameObject::deleteAllChildren(){
 void GameObject::createUI(char *ID){
     ImGui::BeginChild(ID);
     ImGui::Text(m_name.c_str()); //ImGui::SameLine();
-    //ImGui::Text("id : %d", getID());
+    ImGui::Text("id : %d", getID());
     ImGui::Separator();
     m_transform->createUI();
 
