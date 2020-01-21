@@ -353,4 +353,20 @@ void Scene::loadSampleScene(){
     obj->addComponent<Mesh*>(new MeshLoaderOFF("../data/models/icosa.off"));
     obj->addComponent<MeshRenderer*>(new MeshRenderer());
     objectsEngine.push_back(obj);
+
+    GameObject *cube = new GameObject(addNewId(), "Cube", new Transform(glm::vec3(-3,0,0)));
+
+    cube->addComponent<Mesh*>(new MeshCube());
+    cube->addComponent<Material*>(new Lambertian());
+    cube->addComponent<MeshRenderer*>(new MeshRenderer());
+
+    obj->addChild(cube);
+
+    GameObject *cube2 = new GameObject(addNewId(), "Cube", new Transform(glm::vec3(-4,0,-3)));
+
+    cube2->addComponent<Mesh*>(new MeshCube());
+    cube2->addComponent<Material*>(new Lambertian());
+    cube2->addComponent<MeshRenderer*>(new MeshRenderer());
+
+    objectsEngine.push_back(cube2);
 }
