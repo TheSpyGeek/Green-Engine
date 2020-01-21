@@ -478,17 +478,6 @@ void Mesh::drawGridForSimplification(glm::vec3 minimum, glm::vec3 maximum, glm::
 }
 
 
-// calcul le numero de la cellule en fonction de la resolution
-int cellToIndex(int resolution, int i, int j, int k){
-    return i + j*resolution + k*resolution*resolution;
-}
-
-std::vector<int> indexToCell(int resolution, int index){
-    std::vector<int> v;
-    v.resize(3);
-
-
-}
 
 
 

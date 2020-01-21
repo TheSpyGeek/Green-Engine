@@ -46,6 +46,7 @@ private:
     void displayEngineNode(std::vector<GameObject*> obj);
     GLuint loadTexture(unsigned char *pixels, int w, int h, int components);
 
+    void moveObjTo(int idFrom, int idTo);
 
     bool m_hasToBeDisplayed;
     int m_selectedID;
@@ -56,6 +57,8 @@ private:
     InputManager *m_inputManager;
 
     ImFont* m_pFont;
+
+    int m_idToMove = -1, m_moveTo = -1;
 
     bool m_showInputManager = false, m_showControls = false, m_showMode = false, m_showMainRenderer = false;
 

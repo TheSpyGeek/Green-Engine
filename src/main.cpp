@@ -67,6 +67,8 @@ void display(int display_w, int display_h, MainRenderer *renderer, UI *ui){
         ImGui::Text("renderer update : %u microseconds", rendererUpdate);
         ImGui::End();
     }
+
+    // ImGui::ShowDemoWindow();
     
     // Rendering
     ImGui::Render();

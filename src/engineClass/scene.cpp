@@ -187,6 +187,19 @@ void Scene::deleteObject(int id){
 }
 
 
+GameObject *Scene::getGameObjectAndUnreferenced(int id){
+    for(unsigned int i=0; i<objectsEngine.size(); i++){
+        if(objectsEngine[i]->getID() == id){
+            GameObject *obj = objectsEngine[i];
+            objectsEngine.erase(objectsEngine.begin()+i);
+            return obj;
+        } else {
+            
+        }
+    }
+}
+
+
 int Scene::addNewId(){
     m_idObject++;
     return m_idObject-1;
