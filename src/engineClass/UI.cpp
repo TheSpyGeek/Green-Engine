@@ -154,12 +154,12 @@ void UI::displayEngineNode(std::vector<GameObject*> obj){
                     if(m_moveTo != m_idToMove){
                         updateScene = true;
                     }
-                } else {
-                    updateScene = true;
-                    m_moveTo = -1;
-                    printf("Alo");
                 }
                 ImGui::EndDragDropTarget();
+            }
+
+            if(ImGui::IsMouseReleased(0) && m_idToMove != -1 && m_moveTo == -1){
+                updateScene = true;
             }
 
             ImGui::SameLine();
