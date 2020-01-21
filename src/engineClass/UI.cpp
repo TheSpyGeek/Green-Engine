@@ -98,7 +98,7 @@ void UI::displayEngineNode(std::vector<GameObject*> obj){
         ImGuiTreeNodeFlags node_flags = 0;
         int id = obj[i]->getID();
 
-        sprintf(strobj,"obj %i", id); // hidden label
+        sprintf(strobj,"##obj %i", id); // hidden label
 
 
         if(obj[i]->m_listOfChildren.size() == 0){
@@ -109,28 +109,20 @@ void UI::displayEngineNode(std::vector<GameObject*> obj){
             ImGui::SameLine();
             ImGui::Text(obj[i]->getName().c_str());
         } else {
-            if(m_selectedID == id){
-                node_flags |= ImGuiTreeNodeFlags_Selected;
-            }
+            node_flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
+            if(m_selectedID == id){ node_flags |= ImGuiTreeNodeFlags_Selected;}
+
             bool node_open = ImGui::TreeNodeEx(strobj, node_flags);
-            //ImGui::SameLine();
-            // add selectable
             if(ImGui::IsItemClicked()){
                 m_selectedID = id;
             }
 
-            // bool is_selected = m_selectedID == id;
-            // if(node_flags | ImGuiTreeNodeFlags_Selected){
-            // if(ImGui::Selectable(strobj, is_selected)){
-            //     m_selectedID = obj[i]->getID();
-            // }
-            //ImGui::SameLine();
-            //ImGui::Text(obj[i]->getName().c_str());
+            ImGui::SameLine();
+            ImGui::Text(obj[i]->getName().c_str());
 
             // if the node is open
             if(node_open){
                 displayEngineNode(obj[i]->m_listOfChildren);
-
                 ImGui::TreePop();
             }
 
