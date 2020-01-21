@@ -85,7 +85,7 @@ GameObject* GameObject::findChildPopFromChildList(int id){
             m_listOfChildren.erase(m_listOfChildren.begin()+i);
             return m_listOfChildren[i];
         } else {
-            GameObject *tmp = findChildPopFromChildList(id);
+            GameObject *tmp = m_listOfChildren[i]->findChildPopFromChildList(id);
             if(tmp != nullptr){
                 return tmp;
             }
@@ -99,7 +99,7 @@ GameObject* GameObject::findChild(int id){
         if(m_listOfChildren[i]->getID() == id){
             return m_listOfChildren[i];
         } else {
-            GameObject *tmp = findChild(id);
+            GameObject *tmp = m_listOfChildren[i]->findChild(id);
             if(tmp != nullptr){
                 return tmp;
             }

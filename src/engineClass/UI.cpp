@@ -109,17 +109,23 @@ void UI::displayEngineNode(std::vector<GameObject*> obj){
                 m_selectedID = obj[i]->getID();
             }
             if (ImGui::BeginDragDropSource()) {
-                // printf("Source drop %i\n", id);
+                ImGui::SetDragDropPayload("GameObject", &id, sizeof(int));
+                ImGui::Text("Dragging from %d", id);
                 m_idToMove = id;
                 ImGui::EndDragDropSource();
             }
 
             if (ImGui::BeginDragDropTarget()) {
-                printf("Target drop %i\n", id);
-                m_moveTo = id;
-                updateScene = true;
+                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GameObject")){
+                    ImGui::Text("Target id %d", id);
+                    m_moveTo = id;
+                    if(m_moveTo != m_idToMove){
+                        updateScene = true;
+                    }
+                }
                 ImGui::EndDragDropTarget();
             }
+
             ImGui::SameLine();
             ImGui::Text(obj[i]->getName().c_str());
         } else {
@@ -135,18 +141,23 @@ void UI::displayEngineNode(std::vector<GameObject*> obj){
             }
 
             if (ImGui::BeginDragDropSource()) {
-                // printf("Source drop %i\n", id);
+                ImGui::SetDragDropPayload("GameObject", &id, sizeof(int));
+                ImGui::Text("Dragging from %d", id);
                 m_idToMove = id;
                 ImGui::EndDragDropSource();
             }
 
             if (ImGui::BeginDragDropTarget()) {
-                printf("Traget drop %i\n", id);
-                m_moveTo = id;
-                updateScene = true;
+                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GameObject")){
+                    ImGui::Text("Target id %d", id);
+                    m_moveTo = id;
+                    if(m_moveTo != m_idToMove){
+                        updateScene = true;
+                    }
+                }
                 ImGui::EndDragDropTarget();
             }
-            
+
             ImGui::SameLine();
             ImGui::Text(obj[i]->getName().c_str());
 

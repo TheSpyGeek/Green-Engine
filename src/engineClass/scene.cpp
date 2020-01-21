@@ -216,6 +216,7 @@ GameObject *Scene::getGameObject(int id){
             }
         }
     }
+    return nullptr;
 }
 
 
@@ -402,4 +403,8 @@ void Scene::loadSampleScene(){
     cube2->addComponent<MeshRenderer*>(new MeshRenderer());
 
     objectsEngine.push_back(cube2);
+
+    // GameObject *test = getGameObjectAndUnreferenced(4);
+    // std::cout << test->getName() << "\n";
+
 }
