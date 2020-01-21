@@ -28,9 +28,11 @@ public:
     int getID();
     void setID(int i);
 
-    /// GRAPHE SCENE
+    /// GRAPH SCENE
     void addChild(GameObject *obj);
     void removeChild(int id);
+    GameObject *findChildPopFromChildList(int id);
+    GameObject* findChild(int id);
     void deleteAllChildren();
     std::vector<GameObject*> m_listOfChildren;
 

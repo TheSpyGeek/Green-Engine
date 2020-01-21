@@ -108,6 +108,18 @@ void UI::displayEngineNode(std::vector<GameObject*> obj){
             if(ImGui::Selectable(strobj, is_selected)){
                 m_selectedID = obj[i]->getID();
             }
+            if (ImGui::BeginDragDropSource()) {
+                // printf("Source drop %i\n", id);
+                m_idToMove = id;
+                ImGui::EndDragDropSource();
+            }
+
+            if (ImGui::BeginDragDropTarget()) {
+                printf("Target drop %i\n", id);
+                m_moveTo = id;
+                updateScene = true;
+                ImGui::EndDragDropTarget();
+            }
             ImGui::SameLine();
             ImGui::Text(obj[i]->getName().c_str());
         } else {
@@ -116,6 +128,8 @@ void UI::displayEngineNode(std::vector<GameObject*> obj){
 
             bool node_open = ImGui::TreeNodeEx(strobj, node_flags);
 
+
+            
             if(ImGui::IsItemClicked()){
                 m_selectedID = id;
             }
@@ -127,14 +141,15 @@ void UI::displayEngineNode(std::vector<GameObject*> obj){
             }
 
             if (ImGui::BeginDragDropTarget()) {
-                // printf("Traget drop %i\n", id);
+                printf("Traget drop %i\n", id);
                 m_moveTo = id;
                 updateScene = true;
                 ImGui::EndDragDropTarget();
             }
-
+            
             ImGui::SameLine();
             ImGui::Text(obj[i]->getName().c_str());
+
 
             // if the node is open
             if(node_open){
@@ -143,6 +158,7 @@ void UI::displayEngineNode(std::vector<GameObject*> obj){
             }
 
         }
+
 
         
 
@@ -155,7 +171,12 @@ void UI::displayEngineNode(std::vector<GameObject*> obj){
 }
 
 void UI::moveObjTo(int idFrom, int idTo){
+    if(m_scene == nullptr){return;}
 
+    GameObject *current = m_scene->getGameObjectAndUnreferenced(idFrom);
+    GameObject *objTo = m_scene->getGameObject(idTo);
+
+    objTo->addChild(current);
 }
 
 void UI::createUISceneManager(Scene *scene){

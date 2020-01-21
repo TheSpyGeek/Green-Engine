@@ -41,6 +41,7 @@ public:
     void addGameObject(GameObject *obj);
     void addCube();
     GameObject *getGameObjectAndUnreferenced(int id);
+    GameObject *getGameObject(int id);
     void deleteObject(int id);
 
     void loadDefaultScene();

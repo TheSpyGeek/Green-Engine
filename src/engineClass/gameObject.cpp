@@ -79,6 +79,37 @@ void GameObject::removeChild(int id){
     }
 }
 
+GameObject* GameObject::findChildPopFromChildList(int id){
+    for(unsigned int i=0; i<m_listOfChildren.size(); i++){
+        if(m_listOfChildren[i]->getID() == id){
+            m_listOfChildren.erase(m_listOfChildren.begin()+i);
+            return m_listOfChildren[i];
+        } else {
+            GameObject *tmp = findChildPopFromChildList(id);
+            if(tmp != nullptr){
+                return tmp;
+            }
+        }
+    }
+    return nullptr;
+}
+
+GameObject* GameObject::findChild(int id){
+    for(unsigned int i=0; i<m_listOfChildren.size(); i++){
+        if(m_listOfChildren[i]->getID() == id){
+            return m_listOfChildren[i];
+        } else {
+            GameObject *tmp = findChild(id);
+            if(tmp != nullptr){
+                return tmp;
+            }
+        }
+    }
+    return nullptr;
+}
+
+
+
 
 // supprime tous les enfants de ce gameobject en récursif
 void GameObject::deleteAllChildren(){
