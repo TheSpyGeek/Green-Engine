@@ -1,7 +1,7 @@
 
 #include "UI.h"
 
-
+#include <iostream>
 
 UI::UI() : m_scene(NULL), m_mainRenderer(NULL), m_inputManager(NULL), m_window(NULL), m_selectedID(0), m_hasToBeDisplayed(true) {
     /*ImGuiIO& io = ImGui::GetIO();
@@ -98,7 +98,7 @@ void UI::displayEngineNode(std::vector<GameObject*> obj){
         ImGuiTreeNodeFlags node_flags = 0;
         int id = obj[i]->getID();
 
-        sprintf(strobj,"##obj %i", id); // hidden label
+        sprintf(strobj,"obj %i", id); // hidden label
 
 
         if(obj[i]->m_listOfChildren.size() == 0){
@@ -109,15 +109,23 @@ void UI::displayEngineNode(std::vector<GameObject*> obj){
             ImGui::SameLine();
             ImGui::Text(obj[i]->getName().c_str());
         } else {
-            bool node_open = ImGui::TreeNodeEx(strobj, node_flags);
-            ImGui::SameLine();
-            // add selectable
-            bool is_selected = m_selectedID == id;
-            if(ImGui::Selectable(strobj, is_selected)){
-                m_selectedID = obj[i]->getID();
+            if(m_selectedID == id){
+                node_flags |= ImGuiTreeNodeFlags_Selected;
             }
-            ImGui::SameLine();
-            ImGui::Text(obj[i]->getName().c_str());
+            bool node_open = ImGui::TreeNodeEx(strobj, node_flags);
+            //ImGui::SameLine();
+            // add selectable
+            if(ImGui::IsItemClicked()){
+                m_selectedID = id;
+            }
+
+            // bool is_selected = m_selectedID == id;
+            // if(node_flags | ImGuiTreeNodeFlags_Selected){
+            // if(ImGui::Selectable(strobj, is_selected)){
+            //     m_selectedID = obj[i]->getID();
+            // }
+            //ImGui::SameLine();
+            //ImGui::Text(obj[i]->getName().c_str());
 
             // if the node is open
             if(node_open){
@@ -287,15 +295,15 @@ void UI::set(GLFWwindow *win){
 
 
 GLuint UI::loadTexture(unsigned char *pixels, int w, int h, int components){
-GLuint textureID;
-glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-glGenTextures(1, &textureID);
-glBindTexture(GL_TEXTURE_2D, textureID);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-glTexImage2D(GL_TEXTURE_2D, 0, components, w, h, 0, (components==3)?GL_RGB:GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-return textureID;
+    GLuint textureID;
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    glTexImage2D(GL_TEXTURE_2D, 0, components, w, h, 0, (components==3)?GL_RGB:GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    return textureID;
 }
