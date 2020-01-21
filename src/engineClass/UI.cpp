@@ -154,6 +154,10 @@ void UI::displayEngineNode(std::vector<GameObject*> obj){
                     if(m_moveTo != m_idToMove){
                         updateScene = true;
                     }
+                } else {
+                    updateScene = true;
+                    m_moveTo = -1;
+                    printf("Alo");
                 }
                 ImGui::EndDragDropTarget();
             }
@@ -177,6 +181,8 @@ void UI::displayEngineNode(std::vector<GameObject*> obj){
 
     if(updateScene){
         moveObjTo(m_idToMove, m_moveTo);
+        m_moveTo = -1;
+        m_idToMove = -1;
     }
 
 }
@@ -184,10 +190,16 @@ void UI::displayEngineNode(std::vector<GameObject*> obj){
 void UI::moveObjTo(int idFrom, int idTo){
     if(m_scene == nullptr){return;}
 
+    assert(idFrom > -1);
     GameObject *current = m_scene->getGameObjectAndUnreferenced(idFrom);
-    GameObject *objTo = m_scene->getGameObject(idTo);
+    if(idTo != -1){
+        assert(idTo > -1);
+        GameObject *objTo = m_scene->getGameObject(idTo);
+        objTo->addChild(current);
+    } else {
+        m_scene->objectsEngine.push_back(current);
+    }
 
-    objTo->addChild(current);
 }
 
 void UI::createUISceneManager(Scene *scene){
@@ -220,7 +232,7 @@ void UI::createUISceneManager(Scene *scene){
         }
         if (ImGui::BeginMenu("Edit")){
             if (ImGui::MenuItem("Add GameObject", "Ctrl+T")) { scene->addGameObject(); }
-            if (ImGui::MenuItem("Add Cube")) { scene->addCube(); }
+            if (ImGui::MenuItem("Add Cube", "CTRL+N")) { scene->addCube(); }
             if (ImGui::MenuItem("Delete selection", "SUPPR")) { scene->deleteObject(m_selectedID); }
             ImGui::EndMenu();
         }

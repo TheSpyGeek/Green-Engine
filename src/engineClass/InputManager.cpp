@@ -77,7 +77,7 @@ void InputManager::update(){
         if(io.KeyCtrl && ImGui::IsKeyPressed('T')){
             m_scene->addGameObject();
         }
-        if(io.KeyCtrl && ImGui::IsKeyPressed('O')){
+        if(io.KeyCtrl && ImGui::IsKeyPressed('N')){
             m_scene->addCube();
         }
     }
