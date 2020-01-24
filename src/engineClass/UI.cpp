@@ -180,6 +180,10 @@ void UI::displayEngineNode(std::vector<GameObject*> obj){
 
     }
 
+    if(ImGui::IsMouseReleased(0) && m_idToMove != -1 && m_moveTo == -1){
+        updateScene = true;
+    }
+
     if(updateScene){
         moveObjTo(m_idToMove, m_moveTo);
         m_moveTo = -1;
